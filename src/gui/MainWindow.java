@@ -1867,7 +1867,7 @@ public class MainWindow extends javax.swing.JFrame {
      *
      * @param evt
      */
-    private void jMenuItemScenario1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemScenario1ActionPerformed
+    private void jMenuItemScenario2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemScenario2ActionPerformed
         int not = 30;
         int SEED = 101;
         int cc = 2;
@@ -2001,7 +2001,7 @@ public class MainWindow extends javax.swing.JFrame {
                 }
             }
         }
-    }//GEN-LAST:event_jMenuItemScenario1ActionPerformed
+    }//GEN-LAST:event_jMenuItemScenario2ActionPerformed
 
     /**
      * Fixed storey count = 3 # of customers = 60, 90, 120 # of connections = 1,
@@ -2009,7 +2009,7 @@ public class MainWindow extends javax.swing.JFrame {
      *
      * @param evt
      */
-    private void jMenuItemScenario2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemScenario2ActionPerformed
+    private void jMenuItemScenario1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemScenario1ActionPerformed
         int not = 30;
         int SEED = 101;
         int nos = 3;
@@ -2143,7 +2143,7 @@ public class MainWindow extends javax.swing.JFrame {
                 }
             }
         }
-    }//GEN-LAST:event_jMenuItemScenario2ActionPerformed
+    }//GEN-LAST:event_jMenuItemScenario1ActionPerformed
 
     /**
      * Fixed customer count = 120 # of storeys = 2, 3, 4, 5, 6 # of connections
