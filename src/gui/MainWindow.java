@@ -31,11 +31,15 @@ import buildingmodel.Connection;
 import problem.EuclideanCoordinate;
 import buildingmodel.Node;
 import buildingmodel.Storey;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.Random;
 import javax.swing.JCheckBox;
@@ -175,7 +179,12 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void initPanels() {
         ((StoreyPanel) jPanel1).setStorey(storeys.get(0));
-        ((StoreyPanel) jPanel2).setStorey(storeys.get(1));
+        if (numOfStoreys == 1) {
+            ((StoreyPanel) jPanel2).setStorey(storeys.get(0));
+        }
+        else {
+            ((StoreyPanel) jPanel2).setStorey(storeys.get(1));
+        }
         jPanel1.repaint();
         jPanel2.repaint();
     }
@@ -202,7 +211,11 @@ public class MainWindow extends javax.swing.JFrame {
         jComboBox2.addItemListener(listener);
 
         jComboBox1.setSelectedIndex(0);
-        jComboBox2.setSelectedIndex(1);
+        if(numOfStoreys == 1){
+            jComboBox2.setSelectedIndex(0);
+        } else {
+            jComboBox2.setSelectedIndex(1);
+        }
     }
 
     private void createNewProblem(int numOfStoreys, double storeyWidth) {
@@ -426,7 +439,7 @@ public class MainWindow extends javax.swing.JFrame {
         for (int i = 0; i < size; i++) {
             ArrayList<Node> nodeRoute = new ArrayList<>();
             ArrayList<Integer> route = routes.get(i);
-            
+
             for (int j = 0; j < route.size() - 1; j++) {
                 int from = route.get(j);
                 int to = route.get(j + 1);
@@ -705,6 +718,10 @@ public class MainWindow extends javax.swing.JFrame {
         jMenuItemScenario2 = new javax.swing.JMenuItem();
         jMenuItemScenario3 = new javax.swing.JMenuItem();
         jMenuItemScenario4 = new javax.swing.JMenuItem();
+        jMenuItemScenario1New = new javax.swing.JMenuItem();
+        jMenuItemScenario2New = new javax.swing.JMenuItem();
+        jMenuItemScenario3New = new javax.swing.JMenuItem();
+        jMenuItemScenario4New = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItemExit = new javax.swing.JMenuItem();
         jMenuAbout = new javax.swing.JMenu();
@@ -1326,6 +1343,38 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         jMenuFile.add(jMenuItemScenario4);
+
+        jMenuItemScenario1New.setText("Scenario 1 New");
+        jMenuItemScenario1New.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemScenario1NewActionPerformed(evt);
+            }
+        });
+        jMenuFile.add(jMenuItemScenario1New);
+
+        jMenuItemScenario2New.setText("Scenario 2 New");
+        jMenuItemScenario2New.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemScenario2NewActionPerformed(evt);
+            }
+        });
+        jMenuFile.add(jMenuItemScenario2New);
+
+        jMenuItemScenario3New.setText("Scenario 3 New");
+        jMenuItemScenario3New.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemScenario3NewActionPerformed(evt);
+            }
+        });
+        jMenuFile.add(jMenuItemScenario3New);
+
+        jMenuItemScenario4New.setText("Scenario 4 New");
+        jMenuItemScenario4New.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemScenario4NewActionPerformed(evt);
+            }
+        });
+        jMenuFile.add(jMenuItemScenario4New);
         jMenuFile.add(jSeparator1);
 
         jMenuItemExit.setText("Exit");
@@ -1862,7 +1911,6 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuItemGenerateProblemActionPerformed
 
-
     /**
      * Fixed connection count = 2 # of customers = 60, 90, 120 # of storeys = 2,
      * 3, 4, 5, 6
@@ -2139,7 +2187,7 @@ public class MainWindow extends javax.swing.JFrame {
                     long startTime = System.nanoTime();
                     Solution sol = gels.solve();
                     long estimatedTime = System.nanoTime() - startTime;
-                    
+
                     System.out.println(cc + " " + noc + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
                 }
             }
@@ -2303,7 +2351,7 @@ public class MainWindow extends javax.swing.JFrame {
         RandomVectorGenerator generator = new HaltonSequenceGenerator(2);
 
         for (int nos = 2; nos <= 6; nos++) {
-            for (int cc = 1; cc <= 8; cc*=2) {
+            for (int cc = 1; cc <= 8; cc *= 2) {
                 for (int t = 0; t < not; t++) {
                     Random random = new Random(SEED++);
 
@@ -2429,6 +2477,584 @@ public class MainWindow extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jMenuItemScenario4ActionPerformed
+
+    private void jMenuItemScenario2NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemScenario2NewActionPerformed
+        int not = 30;
+        int SEED = 101;
+        int cc = 2;
+        int noc = 120;
+        double sw = 400;
+
+        RandomVectorGenerator generator = new HaltonSequenceGenerator(2);
+
+        for (int nos = 1; nos <= 8; nos *= 2) {
+            for (int t = 0; t < not; t++) {
+                Random random = new Random(SEED++);
+
+                double randomVector[][] = new double[noc][];
+                for (int i = 0; i < noc; i++) {
+                    randomVector[i] = generator.nextVector();
+                }
+
+                int demandVector[] = new int[noc];
+                for (int i = 0; i < noc; i++) {
+                    demandVector[i] = random.nextInt(10) + 1;
+                }
+
+                createNewProblem(nos, sw);
+
+                ArrayList<EuclideanCoordinate> connectionCoordinates = new ArrayList<>();
+                switch (cc) {
+                    case 1:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        break;
+                    case 2:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        break;
+                    case 4:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth / 2));
+                        break;
+                    case 8:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth));
+                        break;
+                    default:
+                        break;
+                }
+
+                //add depot
+                Node depot = new Node(storeys.get(0), new EuclideanCoordinate(sw / 2, sw / 2), MainWindow.this.nodeID++, 0);
+                depot.setDepot(true);
+                addNewNode(depot);
+
+                for (int j = 0; j < cc; j++) {
+                    ArrayList<Node> connectionNodes = new ArrayList<>();
+                    for (int i = 0; i < nos; i++) {
+                        Node cNode = new Node(storeys.get(i), connectionCoordinates.get(j), MainWindow.this.nodeID++, -1);
+                        connectionNodes.add(cNode);
+                    }
+                    for (int k = 0; k < nos - 1; k++) {
+                        Node node1 = connectionNodes.get(k);
+                        Node node2 = connectionNodes.get(k + 1);
+                        Connection connection = new Connection(node1, node2, DEFAULT_CONNECTION_WEIGHT);
+                        addNewConnection(connection);
+                    }
+                }
+
+                int counter = 0;
+                //add nodes to each storey
+                for (int i = 0; i < nos; i++) {
+                    Storey storey = storeys.get(i);
+                    for (int j = 0; j < (noc / nos); j++) { //equal number of customers for each storey
+                        double[] tempVector = randomVector[counter];
+                        EuclideanCoordinate coordinate = new EuclideanCoordinate(tempVector[0] * sw, tempVector[1] * sw);
+                        Node node = new Node(storey, coordinate, MainWindow.this.nodeID++, demandVector[counter]);
+                        addNewNode(node);
+                        counter++;
+                    }
+                }
+
+                //Solve Problem
+                double[][] weightMatrix = constructWeightMatrix();
+                FloydsDistanceMatrixConstructor dmc = new FloydsDistanceMatrixConstructor();
+                int nodeCount = calculateNodeCount();
+                double[][] distanceMatrix = dmc.constructDistanceMatrix(weightMatrix, nodeCount);
+                int[] demands = new int[nodeCount];
+
+                demands[0] = 0; //depot has no demand
+                //construct demand array
+                for (int i = 1; i < nodeCount; i++) {
+                    Node node = findNodeWithAuxilaryID(i);
+                    demands[i] = node.getDemand();
+                }
+
+                //construct problem
+                Problem problem = new Problem();
+                problem.setDemands(demands);
+                problem.setDistanceMatrix(distanceMatrix);
+                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
+                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
+                problem.setNumOfCustomers(nodeCount - 1);
+                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
+                problem.setDepot(0);
+
+                ParameterList params = new ParameterList();
+                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
+                params.setRandom(random);
+                params.setBi(jCheckBoxBI.isSelected());
+                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
+                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
+                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
+                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
+                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
+                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+
+                jProgressBar1.setMinimum(0);
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setValue(0);
+
+                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                long startTime = System.nanoTime();
+                Solution sol = gels.solve();
+                long estimatedTime = System.nanoTime() - startTime;
+                
+                int routeCount = sol.getK();
+                String fileText = "" + t + " " + Util.applyPrecision(sw, 2) + " " + cc + " " + noc + " " + nos + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000 + " " + routeCount + " " + DEFAULT_CONNECTION_WEIGHT;
+                System.out.println(fileText);
+                try (FileWriter fw = new FileWriter("C:\\Users\\user\\OneDrive\\Belgeler\\Multi Storey Yayın\\Experiments\\Yeni\\Scenario2New.txt", true);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        PrintWriter out = new PrintWriter(bw)) {
+                    out.println(fileText);
+                } catch (IOException e) {
+                    //exception handling left as an exercise for the reader
+                }
+            }
+        }
+    }//GEN-LAST:event_jMenuItemScenario2NewActionPerformed
+
+    private void jMenuItemScenario1NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemScenario1NewActionPerformed
+        int not = 30;
+        int SEED = 101;
+        int nos = 4;
+        int cc = 2;
+        double sw = 400;
+
+        RandomVectorGenerator generator = new HaltonSequenceGenerator(2);
+
+        for (int noc = 60; noc <= 180; noc += 60) {
+            for (int t = 0; t < not; t++) {
+                Random random = new Random(SEED++);
+
+                double randomVector[][] = new double[noc][];
+                for (int i = 0; i < noc; i++) {
+                    randomVector[i] = generator.nextVector();
+                }
+
+                int demandVector[] = new int[noc];
+                for (int i = 0; i < noc; i++) {
+                    demandVector[i] = random.nextInt(10) + 1;
+                }
+
+                createNewProblem(nos, sw);
+
+                ArrayList<EuclideanCoordinate> connectionCoordinates = new ArrayList<>();
+                switch (cc) {
+                    case 1:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        break;
+                    case 2:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        break;
+                    case 4:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth / 2));
+                        break;
+                    case 8:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth));
+                        break;
+                    default:
+                        break;
+                }
+
+                //add depot
+                Node depot = new Node(storeys.get(0), new EuclideanCoordinate(sw / 2, sw / 2), MainWindow.this.nodeID++, 0);
+                depot.setDepot(true);
+                addNewNode(depot);
+
+                for (int j = 0; j < cc; j++) {
+                    ArrayList<Node> connectionNodes = new ArrayList<>();
+                    for (int i = 0; i < nos; i++) {
+                        Node cNode = new Node(storeys.get(i), connectionCoordinates.get(j), MainWindow.this.nodeID++, -1);
+                        connectionNodes.add(cNode);
+                    }
+                    for (int k = 0; k < nos - 1; k++) {
+                        Node node1 = connectionNodes.get(k);
+                        Node node2 = connectionNodes.get(k + 1);
+                        Connection connection = new Connection(node1, node2, DEFAULT_CONNECTION_WEIGHT);
+                        addNewConnection(connection);
+                    }
+                }
+
+                int counter = 0;
+                //add nodes to each storey
+                for (int i = 0; i < nos; i++) {
+                    Storey storey = storeys.get(i);
+                    for (int j = 0; j < (noc / nos); j++) { //equal number of customers for each storey
+                        double[] tempVector = randomVector[counter];
+                        EuclideanCoordinate coordinate = new EuclideanCoordinate(tempVector[0] * sw, tempVector[1] * sw);
+                        Node node = new Node(storey, coordinate, MainWindow.this.nodeID++, demandVector[counter]);
+                        addNewNode(node);
+                        counter++;
+                    }
+                }
+
+                //Solve Problem
+                double[][] weightMatrix = constructWeightMatrix();
+                FloydsDistanceMatrixConstructor dmc = new FloydsDistanceMatrixConstructor();
+                int nodeCount = calculateNodeCount();
+                double[][] distanceMatrix = dmc.constructDistanceMatrix(weightMatrix, nodeCount);
+                int[] demands = new int[nodeCount];
+
+                demands[0] = 0; //depot has no demand
+                //construct demand array
+                for (int i = 1; i < nodeCount; i++) {
+                    Node node = findNodeWithAuxilaryID(i);
+                    demands[i] = node.getDemand();
+                }
+
+                //construct problem
+                Problem problem = new Problem();
+                problem.setDemands(demands);
+                problem.setDistanceMatrix(distanceMatrix);
+                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
+                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
+                problem.setNumOfCustomers(nodeCount - 1);
+                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
+                problem.setDepot(0);
+
+                ParameterList params = new ParameterList();
+                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
+                params.setRandom(random);
+                params.setBi(jCheckBoxBI.isSelected());
+                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
+                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
+                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
+                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
+                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
+                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+
+                jProgressBar1.setMinimum(0);
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setValue(0);
+
+                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                long startTime = System.nanoTime();
+                Solution sol = gels.solve();
+                long estimatedTime = System.nanoTime() - startTime;
+
+                int routeCount = sol.getK();
+                String fileText = "" + t + " " + Util.applyPrecision(sw, 2) + " " + cc + " " + noc + " " + nos + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000 + " " + routeCount + " " + DEFAULT_CONNECTION_WEIGHT;
+                System.out.println(fileText);
+                try (FileWriter fw = new FileWriter("C:\\Users\\user\\OneDrive\\Belgeler\\Multi Storey Yayın\\Experiments\\Yeni\\Scenario1New.txt", true);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        PrintWriter out = new PrintWriter(bw)) {
+                    out.println(fileText);
+                } catch (IOException e) {
+                    //exception handling left as an exercise for the reader
+                }
+            }
+        }
+    }//GEN-LAST:event_jMenuItemScenario1NewActionPerformed
+
+    private void jMenuItemScenario3NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemScenario3NewActionPerformed
+        int not = 30;
+        int SEED = 101;
+        int nos = 4;
+        int noc = 120;
+        double sw = 400;
+
+        RandomVectorGenerator generator = new HaltonSequenceGenerator(2);
+
+        for (int cc = 1; cc <= 8; cc *= 2) {
+            for (int t = 0; t < not; t++) {
+                Random random = new Random(SEED++);
+
+                double randomVector[][] = new double[noc][];
+                for (int i = 0; i < noc; i++) {
+                    randomVector[i] = generator.nextVector();
+                }
+
+                int demandVector[] = new int[noc];
+                for (int i = 0; i < noc; i++) {
+                    demandVector[i] = random.nextInt(10) + 1;
+                }
+
+                createNewProblem(nos, sw);
+
+                ArrayList<EuclideanCoordinate> connectionCoordinates = new ArrayList<>();
+                switch (cc) {
+                    case 1:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        break;
+                    case 2:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        break;
+                    case 4:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth / 2));
+                        break;
+                    case 8:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth));
+                        break;
+                    default:
+                        break;
+                }
+
+                //add depot
+                Node depot = new Node(storeys.get(0), new EuclideanCoordinate(sw / 2, sw / 2), MainWindow.this.nodeID++, 0);
+                depot.setDepot(true);
+                addNewNode(depot);
+
+                for (int j = 0; j < cc; j++) {
+                    ArrayList<Node> connectionNodes = new ArrayList<>();
+                    for (int i = 0; i < nos; i++) {
+                        Node cNode = new Node(storeys.get(i), connectionCoordinates.get(j), MainWindow.this.nodeID++, -1);
+                        connectionNodes.add(cNode);
+                    }
+                    for (int k = 0; k < nos - 1; k++) {
+                        Node node1 = connectionNodes.get(k);
+                        Node node2 = connectionNodes.get(k + 1);
+                        Connection connection = new Connection(node1, node2, DEFAULT_CONNECTION_WEIGHT);
+                        addNewConnection(connection);
+                    }
+                }
+
+                int counter = 0;
+                //add nodes to each storey
+                for (int i = 0; i < nos; i++) {
+                    Storey storey = storeys.get(i);
+                    for (int j = 0; j < (noc / nos); j++) { //equal number of customers for each storey
+                        double[] tempVector = randomVector[counter];
+                        EuclideanCoordinate coordinate = new EuclideanCoordinate(tempVector[0] * sw, tempVector[1] * sw);
+                        Node node = new Node(storey, coordinate, MainWindow.this.nodeID++, demandVector[counter]);
+                        addNewNode(node);
+                        counter++;
+                    }
+                }
+
+                //Solve Problem
+                double[][] weightMatrix = constructWeightMatrix();
+                FloydsDistanceMatrixConstructor dmc = new FloydsDistanceMatrixConstructor();
+                int nodeCount = calculateNodeCount();
+                double[][] distanceMatrix = dmc.constructDistanceMatrix(weightMatrix, nodeCount);
+                int[] demands = new int[nodeCount];
+
+                demands[0] = 0; //depot has no demand
+                //construct demand array
+                for (int i = 1; i < nodeCount; i++) {
+                    Node node = findNodeWithAuxilaryID(i);
+                    demands[i] = node.getDemand();
+                }
+
+                //construct problem
+                Problem problem = new Problem();
+                problem.setDemands(demands);
+                problem.setDistanceMatrix(distanceMatrix);
+                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
+                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
+                problem.setNumOfCustomers(nodeCount - 1);
+                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
+                problem.setDepot(0);
+
+                ParameterList params = new ParameterList();
+                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
+                params.setRandom(random);
+                params.setBi(jCheckBoxBI.isSelected());
+                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
+                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
+                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
+                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
+                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
+                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+
+                jProgressBar1.setMinimum(0);
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setValue(0);
+
+                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                long startTime = System.nanoTime();
+                Solution sol = gels.solve();
+                long estimatedTime = System.nanoTime() - startTime;
+
+                int routeCount = sol.getK();
+                String fileText = "" + t + " " + Util.applyPrecision(sw, 2) + " " + cc + " " + noc + " " + nos + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000 + " " + routeCount + " " + DEFAULT_CONNECTION_WEIGHT;
+                System.out.println(fileText);
+                try (FileWriter fw = new FileWriter("C:\\Users\\user\\OneDrive\\Belgeler\\Multi Storey Yayın\\Experiments\\Yeni\\Scenario3New.txt", true);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        PrintWriter out = new PrintWriter(bw)) {
+                    out.println(fileText);
+                } catch (IOException e) {
+                    //exception handling left as an exercise for the reader
+                }
+            }
+        }
+    }//GEN-LAST:event_jMenuItemScenario3NewActionPerformed
+
+    private void jMenuItemScenario4NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemScenario4NewActionPerformed
+        int not = 30;
+        int SEED = 101;
+        int cc = 2;
+        int noc = 120;
+        double totalArea = 640000;
+        double sw;
+
+        RandomVectorGenerator generator = new HaltonSequenceGenerator(2);
+
+        for (int nos = 1; nos <= 8; nos *= 2) {
+            for (int t = 0; t < not; t++) {
+                Random random = new Random(SEED++);
+
+                double randomVector[][] = new double[noc][];
+                for (int i = 0; i < noc; i++) {
+                    randomVector[i] = generator.nextVector();
+                }
+
+                int demandVector[] = new int[noc];
+                for (int i = 0; i < noc; i++) {
+                    demandVector[i] = random.nextInt(10) + 1;
+                }
+
+                sw = Math.sqrt((totalArea / nos));
+                createNewProblem(nos, sw);
+
+                ArrayList<EuclideanCoordinate> connectionCoordinates = new ArrayList<>();
+                switch (cc) {
+                    case 1:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        break;
+                    case 2:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        break;
+                    case 4:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth / 2));
+                        break;
+                    case 8:
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth / 2, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth / 2));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(0, storeyWidth));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, 0));
+                        connectionCoordinates.add(new EuclideanCoordinate(storeyWidth, storeyWidth));
+                        break;
+                    default:
+                        break;
+                }
+
+                //add depot
+                Node depot = new Node(storeys.get(0), new EuclideanCoordinate(sw / 2, sw / 2), MainWindow.this.nodeID++, 0);
+                depot.setDepot(true);
+                addNewNode(depot);
+
+                for (int j = 0; j < cc; j++) {
+                    ArrayList<Node> connectionNodes = new ArrayList<>();
+                    for (int i = 0; i < nos; i++) {
+                        Node cNode = new Node(storeys.get(i), connectionCoordinates.get(j), MainWindow.this.nodeID++, -1);
+                        connectionNodes.add(cNode);
+                    }
+                    for (int k = 0; k < nos - 1; k++) {
+                        Node node1 = connectionNodes.get(k);
+                        Node node2 = connectionNodes.get(k + 1);
+                        Connection connection = new Connection(node1, node2, DEFAULT_CONNECTION_WEIGHT);
+                        addNewConnection(connection);
+                    }
+                }
+
+                int counter = 0;
+                //add nodes to each storey
+                for (int i = 0; i < nos; i++) {
+                    Storey storey = storeys.get(i);
+                    for (int j = 0; j < (noc / nos); j++) { //equal number of customers for each storey
+                        double[] tempVector = randomVector[counter];
+                        EuclideanCoordinate coordinate = new EuclideanCoordinate(tempVector[0] * sw, tempVector[1] * sw);
+                        Node node = new Node(storey, coordinate, MainWindow.this.nodeID++, demandVector[counter]);
+                        addNewNode(node);
+                        counter++;
+                    }
+                }
+
+                //Solve Problem
+                double[][] weightMatrix = constructWeightMatrix();
+                FloydsDistanceMatrixConstructor dmc = new FloydsDistanceMatrixConstructor();
+                int nodeCount = calculateNodeCount();
+                double[][] distanceMatrix = dmc.constructDistanceMatrix(weightMatrix, nodeCount);
+                int[] demands = new int[nodeCount];
+
+                demands[0] = 0; //depot has no demand
+                //construct demand array
+                for (int i = 1; i < nodeCount; i++) {
+                    Node node = findNodeWithAuxilaryID(i);
+                    demands[i] = node.getDemand();
+                }
+
+                //construct problem
+                Problem problem = new Problem();
+                problem.setDemands(demands);
+                problem.setDistanceMatrix(distanceMatrix);
+                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
+                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
+                problem.setNumOfCustomers(nodeCount - 1);
+                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
+                problem.setDepot(0);
+
+                ParameterList params = new ParameterList();
+                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
+                params.setRandom(random);
+                params.setBi(jCheckBoxBI.isSelected());
+                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
+                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
+                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
+                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
+                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
+                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+
+                jProgressBar1.setMinimum(0);
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setValue(0);
+
+                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                long startTime = System.nanoTime();
+                Solution sol = gels.solve();
+                long estimatedTime = System.nanoTime() - startTime;
+
+                int routeCount = sol.getK();
+                String fileText = "" + t + " " + Util.applyPrecision(sw, 2) + " " + cc + " " + noc + " " + nos + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000 + " " + routeCount + " " + DEFAULT_CONNECTION_WEIGHT;
+                System.out.println(fileText);
+                try (FileWriter fw = new FileWriter("C:\\Users\\user\\OneDrive\\Belgeler\\Multi Storey Yayın\\Experiments\\Yeni\\Scenario4New.txt", true);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        PrintWriter out = new PrintWriter(bw)) {
+                    out.println(fileText);
+                } catch (IOException e) {
+                    //exception handling left as an exercise for the reader
+                }
+            }
+        }
+    }//GEN-LAST:event_jMenuItemScenario4NewActionPerformed
 
     private Connection createConnectionFromXML(XMLEventReader eventReader) throws XMLStreamException {
         XMLEvent event;
@@ -3092,9 +3718,13 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItemNewProblem;
     private javax.swing.JMenuItem jMenuItemSaveProblem;
     private javax.swing.JMenuItem jMenuItemScenario1;
+    private javax.swing.JMenuItem jMenuItemScenario1New;
     private javax.swing.JMenuItem jMenuItemScenario2;
+    private javax.swing.JMenuItem jMenuItemScenario2New;
     private javax.swing.JMenuItem jMenuItemScenario3;
+    private javax.swing.JMenuItem jMenuItemScenario3New;
     private javax.swing.JMenuItem jMenuItemScenario4;
+    private javax.swing.JMenuItem jMenuItemScenario4New;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
