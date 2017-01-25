@@ -5,8 +5,9 @@
  */
 package algorithm.PrinsGRASPxELS.localsearch;
 
+import problem.Problem;
 import problem.Solution;
-import utility.Util;
+import util.Util;
 
 /**
  *
@@ -16,8 +17,8 @@ public class Classical2Opt extends LocalSearch {
 
     private int sigma, t3, t4, t1Star, t3Star, sigmaStar;
 
-    public Classical2Opt() {
-        super();
+    public Classical2Opt(Problem problem) {
+        super(problem);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class Classical2Opt extends LocalSearch {
                             + c[t3 > n ? 0 : t3][t4 > n ? 0 : t4]
                             - c[t4 > n ? 0 : t4][t1 > n ? 0 : t1];
 
-                    G = Util.applyPrecision(G, 2);
+                    G = Util.applyPrecision(G, 4);
                     if (G > GStar) {
                         GStar = G;
                         t1Star = t1;

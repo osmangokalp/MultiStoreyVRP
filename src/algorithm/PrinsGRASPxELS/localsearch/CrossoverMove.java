@@ -5,8 +5,9 @@
  */
 package algorithm.PrinsGRASPxELS.localsearch;
 
+import problem.Problem;
 import problem.Solution;
-import utility.Util;
+import util.Util;
 
 /**
  *
@@ -17,8 +18,8 @@ public class CrossoverMove extends LocalSearch {
     private int t3, t4, t1Star, t3Star;
     private boolean t2t3ok, t1t4ok;
 
-    public CrossoverMove() {
-        super();
+    public CrossoverMove(Problem problem) {
+        super(problem);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class CrossoverMove extends LocalSearch {
                         + c[t3 > n ? 0 : t3][t4 > n ? 0 : t4]
                         - c[t4 > n ? 0 : t4][t1 > n ? 0 : t1];
 
-                G = Util.applyPrecision(G, 2);
+                G = Util.applyPrecision(G, 4);
 
                 if (G > GStar) {
                     GStar = G;
@@ -101,44 +102,9 @@ public class CrossoverMove extends LocalSearch {
         solution.setNext(t1Star, t4Star);
         solution.setNext(t3Star, t2Star);
 
-        makeItOneCircularListAgain();
+        solution.makeItOneCircularListAgain();
         solution.updateAfterLocalSearchModification(GStar);
 
     }
-
-    /**
-     * Because crossover move split tour into two pieces, it must be 
-     * converted to the one circular list before proceed to the other local searches.
-     */
-    private void makeItOneCircularListAgain() {
-        int node, d1, d2 = -1, s1, s2;
-        boolean[] startNodeConsidered = new boolean[k];
-
-        d1 = n + 1;
-        startNodeConsidered[0] = true;
-        //find other depot nodes that are accessible from d1
-        node = d1;
-        node = next[node];
-        while (node != d1) {
-            if (node > n) {
-                startNodeConsidered[node - n - 1] = true;
-            }
-            node = next[node];
-        }
-
-        //find one of the unvisited depot as d2
-        for (int i = 0; i < k; i++) {
-            if (!startNodeConsidered[i]) {
-                d2 = n + i + 1;
-                break;
-            }
-        }
-        
-        s1 = next[d1];
-        s2 = next[d2];
-        
-        solution.setNext(d2, s1);
-        solution.setNext(d1, s2);
-    }
-
+    
 }

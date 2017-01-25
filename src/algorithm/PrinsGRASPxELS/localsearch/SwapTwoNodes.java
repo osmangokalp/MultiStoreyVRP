@@ -5,8 +5,9 @@
  */
 package algorithm.PrinsGRASPxELS.localsearch;
 
+import problem.Problem;
 import problem.Solution;
-import utility.Util;
+import util.Util;
 
 /**
  *
@@ -17,8 +18,8 @@ public class SwapTwoNodes extends LocalSearch {
     private int v1, v2, w1, w2, sigma, t1Star, t2Star;
     private boolean legitimacy;
 
-    public SwapTwoNodes() {
-        super();
+    public SwapTwoNodes(Problem problem) {
+        super(problem);
     }
 
     @Override
@@ -101,7 +102,7 @@ public class SwapTwoNodes extends LocalSearch {
                             - c[v1 > n ? 0 : v1][t2 > n ? 0 : t2] - c[t2 > n ? 0 : t2][w1 > n ? 0 : w1]
                             - c[v2 > n ? 0 : v2][t1 > n ? 0 : t1] - c[t1 > n ? 0 : t1][w2 > n ? 0 : w2];
 
-                    G = Util.applyPrecision(G, 2);
+                    G = Util.applyPrecision(G, 4);
 
                     if (G > GStar) {
                         GStar = G;
@@ -130,24 +131,12 @@ public class SwapTwoNodes extends LocalSearch {
         int w2Star = next[t2Star];
         int v2Star = prev[t2Star];
 
-//        System.out.println("Gain: " + GStar);
-//        System.out.println("v1: " + v1Star);
-//        System.out.println("v2: " + v2Star);
-//        System.out.println("w1: " + w1Star);
-//        System.out.println("w2: " + w2Star);
-//        System.out.println("t1: " + prev[w1Star]);
-//        System.out.println("t2: " + prev[w2Star]);
-//
-//        System.out.println("Before update:");
-//        solution.printTours();
         solution.setNext(v1Star, t2Star);
         solution.setNext(t2Star, w1Star);
 
         solution.setNext(v2Star, t1Star);
         solution.setNext(t1Star, w2Star);
 
-//        System.out.println("After update");
-//        solution.printTours();
         solution.updateAfterLocalSearchModification(GStar);
     }
 }

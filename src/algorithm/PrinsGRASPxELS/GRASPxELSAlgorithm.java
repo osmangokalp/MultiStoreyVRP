@@ -17,7 +17,7 @@ import javax.swing.SwingUtilities;
 import problem.Problem;
 import problem.NeighborElement;
 import problem.Solution;
-import utility.Util;
+import util.Util;
 
 /**
  *
@@ -52,7 +52,7 @@ public class GRASPxELSAlgorithm {
     private int i, j;
 
     //PROBLEM
-    private final Problem problem = Problem.getInstance();
+    private final Problem problem;
     private int n; //num of customers
     private int[] demands;
     private double[][] distanceMatrix;
@@ -63,13 +63,15 @@ public class GRASPxELSAlgorithm {
     int bestIter, lsIter;
     double[] totalImprovementsOfEachLS;
 
-    public GRASPxELSAlgorithm(ParameterList params, JProgressBar pBar) {
+    public GRASPxELSAlgorithm(Problem problem, ParameterList params, JProgressBar pBar) {
         this.progressBar = pBar;
+        this.problem = problem;
         setProblem();
         setParameters(params);
         initVariables();
         constructNeighborList();
-        beasley = new Beasley(nNeighborLists);
+        problem.setnNeighborLists(nNeighborLists);
+        beasley = new Beasley(problem);
     }
 
     private void constructNeighborList() {
@@ -106,12 +108,12 @@ public class GRASPxELSAlgorithm {
         nNeighborLists = new NeighborElement[n + 1][n]; //row zero is the depot
 
         localSearches = new ArrayList<>(5);
-        localSearches.add(new Classical2Opt());
-        localSearches.add(new CrossoverMove());
-        localSearches.add(new SwapTwoNodes());
-        localSearches.add(new OrOptMove());
-        localSearches.add(new StringExchange());
-        localSearches.add(new StringExchangeWithInversion());
+        localSearches.add(new Classical2Opt(problem));
+        localSearches.add(new CrossoverMove(problem));
+        localSearches.add(new SwapTwoNodes(problem));
+        localSearches.add(new OrOptMove(problem));
+        localSearches.add(new StringExchange(problem));
+        localSearches.add(new StringExchangeWithInversion(problem));
 
     }
 
@@ -195,6 +197,9 @@ public class GRASPxELSAlgorithm {
 //            System.out.println("");
         }
 //        printResults();
+        if (SStar != null) {
+            SStar = beasley.split(SStar.concat());
+        }
         return SStar;
     }
 
@@ -214,15 +219,9 @@ public class GRASPxELSAlgorithm {
                 if (GStar > 0) {
 
                     numOfImprovements++;
-                    int[] giantTour = solution.concat();
-                    solution = beasley.split(giantTour);
+                    /*int[] giantTour = solution.concat();
+                    solution = beasley.split(giantTour);*/
                     double fitnessAfter = solution.getFitness();
-
-                    //DENEME AMAÇLI!!!!!!!!!!!!
-                    if (!solution.checkSolution(i)) {
-                        System.out.println(ls.getClass().getName() + " improved with limit exceed!");
-                        solution.printTours();
-                    }
 
                     if (fitnessAfter < bestFitness) {
                         bestFitness = solution.getFitness();

@@ -20,19 +20,7 @@ public class Problem {
     private int depot;
     private double[] bestKnownOrOptimumResults; //best known or optimum results from literature
     private int[] routeCountOfBestResults; //route counts associated with the best results
-
-    private static volatile Problem instance = null;
-
-    private Problem() {
-    }
-    
-    public static synchronized Problem getInstance() {
-        if (instance == null) {
-            instance = new Problem();
-        }
-
-        return instance;
-    }
+    private NeighborElement[][] nNeighborLists; // neighbors (inc. depot) are sorted according to the distances for each node
 
     public int getNumOfCustomers() {
         return numOfCustomers;
@@ -104,6 +92,14 @@ public class Problem {
 
     public void setRouteCountOfBestResults(int[] routeCountOfBestResults) {
         this.routeCountOfBestResults = routeCountOfBestResults;
+    }
+
+    public NeighborElement[][] getnNeighborLists() {
+        return nNeighborLists;
+    }
+
+    public void setnNeighborLists(NeighborElement[][] nNeighborLists) {
+        this.nNeighborLists = nNeighborLists;
     }
 
 }

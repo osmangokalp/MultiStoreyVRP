@@ -17,25 +17,31 @@ import problem.Solution;
 public class Beasley {
 
     //PROBLEM
-    private final Problem problem = Problem.getInstance();
-    private int n = problem.getNumOfCustomers(); //num of customers
-    private int Q = problem.getVehicleCapacity(); //vehicle capacity
-    private int L = problem.getMaxRouteTime(); //max route time
-    private int dropTime = problem.getDropTime();
-    private int[] demands = problem.getDemands();
-    private double[][] distanceMatrix = problem.getDistanceMatrix();
+    private final Problem problem;
+    private int n; //num of customers
+    private int Q; //vehicle capacity
+    private int L; //max route time
+    private int dropTime;
+    private int[] demands;
+    private double[][] distanceMatrix;
     private NeighborElement[][] nNeighborLists;
 
     /**
-     *  
-     * @param nNeighborLists nNeighborLists is needed to initialize solution object. Because it is
-     * always same for one problem instance and there is no need to calculate it again
-     * in every solution object creation. So it is taken from the outside.
+     *
+     * @param problem
      */
-    public Beasley(NeighborElement[][] nNeighborLists) {
-        this.nNeighborLists = nNeighborLists;
+    public Beasley(Problem problem) {
+        this.problem = problem;
+        
+        nNeighborLists = problem.getnNeighborLists();
+        n = problem.getNumOfCustomers(); //num of customers
+        Q = problem.getVehicleCapacity(); //vehicle capacity
+        L = problem.getMaxRouteTime(); //max route time
+        dropTime = problem.getDropTime();
+        demands = problem.getDemands();
+        distanceMatrix = problem.getDistanceMatrix();
     }
-    
+
     /**
      *
      * @param S must start with 0 (depot node)!
@@ -112,7 +118,7 @@ public class Beasley {
 
         return routes;
     }
-    
+
     /**
      * Constructs circular list of the given routes
      *
@@ -122,7 +128,7 @@ public class Beasley {
      */
     public Solution createSolution(ArrayList<ArrayList<Integer>> routes, double fitness) {
         int tripCount = routes.size();
-        Solution solution = new Solution(n, tripCount, fitness, nNeighborLists);
+        Solution solution = new Solution(tripCount, fitness, problem);
         for (int k = 1; k <= tripCount; k++) {
             ArrayList<Integer> route = routes.get(k - 1);
 

@@ -6,7 +6,10 @@
 package problem;
 
 import java.util.ArrayList;
-import utility.Util;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
+import util.Util;
 
 /**
  *
@@ -16,7 +19,7 @@ import utility.Util;
 public class Solution {
 
     private int[] next, prev;
-    private NeighborElement[][] mNeighborLists; //depot nodes from n+1 to n+k(m) is included here
+    private NeighborElement[][] mNeighborLists; //copies of the depot (from n+1 to n+k(m)) are included here
 
     //five m-vectors
     private int[] tripNo, Qb, Qa; //Cumulative times before and after each node
@@ -25,22 +28,26 @@ public class Solution {
     private int m, n, k; //k is the depot count, n is the customer count, m = n + k
     private double fitness; //as a convention, fitness value only includes length of the trips (service times are not included)
 
-    private final Problem problem = Problem.getInstance();
-    private final int[] demands = problem.getDemands(); //demand[0] is 0
-    private final int dropTime = problem.getDropTime(); //service time
-    private final double[][] distanceMatrix = problem.getDistanceMatrix();
+    private Problem problem;
+    private int[] demands; //demand[0] is 0
+    private int dropTime; //service time
+    private double[][] distanceMatrix;
 
     /**
      *
-     * @param n is the number of customers
      * @param k is the number of trips(routes)
      * @param fitness is the fitness value of the solution (service times are
      * not included)
      * @param nNeighborLists is used for creating mNeighborLists which considers
      * all the m elements (including extra depots in circular lists)
+     * @param problem
      */
-    public Solution(int n, int k, double fitness, NeighborElement[][] nNeighborLists) {
-        this.n = n;
+    public Solution(int k, double fitness, Problem problem) {
+        this.problem = problem;
+        this.n = problem.getNumOfCustomers();
+        this.demands = problem.getDemands();
+        this.dropTime = problem.getDropTime();
+        this.distanceMatrix = problem.getDistanceMatrix();
         this.k = k;
         this.fitness = fitness;
         this.m = n + k;
@@ -52,7 +59,14 @@ public class Solution {
         Cb = new double[m + 1];
         Ca = new double[m + 1];
 
-        createMNeighborLists(nNeighborLists);
+        createMNeighborLists(problem.getnNeighborLists());
+    }
+
+    /**
+     * will be used for clone operation
+     */
+    private Solution() {
+
     }
 
     /**
@@ -151,6 +165,10 @@ public class Solution {
 
     public NeighborElement[][] getmNeighborLists() {
         return mNeighborLists;
+    }
+
+    public int getN() {
+        return n;
     }
 
     /**
@@ -288,55 +306,46 @@ public class Solution {
         }
     }
 
-    public ArrayList<Double> getTimeOfEachRoute() {
-        ArrayList<Double> routeTimes = new ArrayList<>();
-        double time = 0;
-        int startNode = n + 1;
-        int currentNode = startNode;
-        int nextNode = next[currentNode];
-        int routeNo = 0;
-        while (nextNode != startNode) {
-            if (nextNode > n) {
-                routeNo++;
-                time += distanceMatrix[currentNode][0];
-                time = Util.applyPrecision(time, 2);
-                routeTimes.add(time);
-                time = 0;
-            } else {
-                time += distanceMatrix[currentNode > n ? 0 : currentNode][nextNode] + dropTime;
+    /**
+     * Should be called if the tour possibly be divided into unconnected sub-tours.
+     * After this method, updateAfterLocalSearchModification() method should also be called
+     * to re-calculate help vectors.
+     */
+    public void makeItOneCircularListAgain() {
+        int node, d1, d2 = -1, s1, s2;
+        boolean[] startNodeConsidered = new boolean[k];
+
+        d1 = n + 1;
+        startNodeConsidered[0] = true;
+        //find other depot nodes that are accessible from d1
+        node = d1;
+        node = next[node];
+        while (node != d1) {
+            if (node > n) {
+                startNodeConsidered[node - n - 1] = true;
             }
-            currentNode = next[currentNode];
-            nextNode = next[currentNode];
+            node = next[node];
         }
-        time += distanceMatrix[currentNode][0];
-        routeTimes.add(Util.applyPrecision(time, 2));
-        
-        return routeTimes;
-    }
-    
-    public ArrayList<Integer> getDemandOfEachRoute() {
-        ArrayList<Integer> routeDemands = new ArrayList<>();
-        
-        int demand = 0;
-        int startNode = n + 1;
-        int currentNode = startNode;
-        int nextNode = next[currentNode];
-        int routeNo = 0;
-        while (nextNode != startNode) {
-            if (nextNode > n) {
-                routeNo++;
-                routeDemands.add(demand);
-                demand = 0;
-            } else {
-                demand += demands[nextNode];
+
+        //find one of the unvisited depot as d2
+        for (int i = 0; i < k; i++) {
+            if (!startNodeConsidered[i]) {
+                d2 = n + i + 1;
+                break;
             }
-            currentNode = next[currentNode];
-            nextNode = next[currentNode];
         }
         
-        routeDemands.add(demand);
-        return routeDemands;
+        if (d1 == -1 || d2 == -1) {
+            return; //It is already a circular list
+        }
+        
+        s1 = next[d1];
+        s2 = next[d2];
+        
+        setNext(d2, s1);
+        setNext(d1, s2);
     }
+
     
     public boolean checkSolution(int algNo) {
         boolean result = true;
@@ -354,7 +363,7 @@ public class Solution {
 //                System.out.println("Time: " + time);
 //                System.out.println("");
                 totalTime += time;
-                time = Util.applyPrecision(time, 2);
+                time = Util.applyPrecision(time, 4);
                 if (demand > problem.getVehicleCapacity()) {
                     System.out.println("DEMAND FAZLA!!! " + demand + ", Alg no: " + algNo + ", Route No:" + routeNo);
                     result = false;
@@ -373,12 +382,13 @@ public class Solution {
             nextNode = next[currentNode];
         }
         time += distanceMatrix[currentNode][0];
+        time = Util.applyPrecision(time, 4);
         if (demand > problem.getVehicleCapacity()) {
             System.out.println("DEMAND FAZLA!!! " + demand + ", Alg no: " + algNo + ", Route No:" + routeNo);
             result = false;
         }
         if (time > problem.getMaxRouteTime()) {
-            System.out.println("ROUTE TIME FAZLA!!! " + demand + ", Alg no: " + algNo + ", Route No:" + routeNo);
+            System.out.println("ROUTE TIME FAZLA!!! " + time + ", Alg no: " + algNo + ", Route No:" + routeNo);
             result = false;
         }
 //        System.out.println("Demand: " + demand);
@@ -475,6 +485,258 @@ public class Solution {
         System.out.println("");
     }
 
+    /**
+     * Used by Tez3GUI to draw tours(tours are seperated by 0, first and last
+     * elements are 0)
+     *
+     * @return
+     */
+    public int[] getTour() {
+        int[] tour = new int[n + k + 1];
+
+        int index = 0, node;
+        boolean[] startNodeConsidered = new boolean[k];
+
+        for (int depotNode = n + 1; depotNode <= m; depotNode++) {
+            if (!startNodeConsidered[depotNode - n - 1]) {
+                tour[index++] = depotNode > n ? 0 : depotNode;
+                startNodeConsidered[depotNode - n - 1] = true;
+                node = depotNode;
+                node = next[node];
+                while (node != depotNode) {
+
+                    tour[index++] = node > n ? 0 : node;
+                    if (node > n) {
+                        startNodeConsidered[node - n - 1] = true;
+                    }
+                    node = next[node];
+                }
+                tour[index++] = node > n ? 0 : node;
+
+            }
+        }
+
+        return tour;
+    }
+
+    public void setNext(int[] next) {
+        this.next = next;
+    }
+
+    public void setPrev(int[] prev) {
+        this.prev = prev;
+    }
+
+    public void setmNeighborLists(NeighborElement[][] mNeighborLists) {
+        this.mNeighborLists = mNeighborLists;
+    }
+
+    public void setTripNo(int[] tripNo) {
+        this.tripNo = tripNo;
+    }
+
+    public void setQb(int[] Qb) {
+        this.Qb = Qb;
+    }
+
+    public void setQa(int[] Qa) {
+        this.Qa = Qa;
+    }
+
+    public void setCb(double[] Cb) {
+        this.Cb = Cb;
+    }
+
+    public void setCa(double[] Ca) {
+        this.Ca = Ca;
+    }
+
+    public void setM(int m) {
+        this.m = m;
+    }
+
+    public void setN(int n) {
+        this.n = n;
+    }
+
+    public void setK(int k) {
+        this.k = k;
+    }
+
+    public void setProblem(Problem problem) {
+        this.problem = problem;
+    }
+
+    public void setDemands(int[] demands) {
+        this.demands = demands;
+    }
+
+    public void setDropTime(int dropTime) {
+        this.dropTime = dropTime;
+    }
+
+    public void setDistanceMatrix(double[][] distanceMatrix) {
+        this.distanceMatrix = distanceMatrix;
+    }
+
+    public Problem getProblem() {
+        return problem;
+    }
+
+    public Solution cloneSolution() {
+        Solution clone = new Solution();
+
+        int[] nextCopy = new int[next.length];
+        System.arraycopy(next, 0, nextCopy, 0, next.length);
+        clone.setNext(nextCopy);
+
+        int[] prevCopy = new int[prev.length];
+        System.arraycopy(prev, 0, prevCopy, 0, prev.length);
+        clone.setPrev(prevCopy);
+
+        clone.setmNeighborLists(mNeighborLists);
+
+        int[] tripNoCopy = new int[tripNo.length];
+        System.arraycopy(tripNo, 0, tripNoCopy, 0, tripNo.length);
+        clone.setTripNo(tripNoCopy);
+
+        int[] QbCopy = new int[Qb.length];
+        System.arraycopy(Qb, 0, QbCopy, 0, Qb.length);
+        clone.setQb(QbCopy);
+
+        int[] QaCopy = new int[Qa.length];
+        System.arraycopy(Qa, 0, QaCopy, 0, Qa.length);
+        clone.setQa(QaCopy);
+
+        double[] CaCopy = new double[Ca.length];
+        System.arraycopy(Ca, 0, CaCopy, 0, Ca.length);
+        clone.setCa(CaCopy);
+
+        double[] CbCopy = new double[Cb.length];
+        System.arraycopy(Cb, 0, CbCopy, 0, Cb.length);
+        clone.setCb(CbCopy);
+
+        clone.setM(m);
+        clone.setN(n);
+        clone.setK(k);
+        clone.setFitness(fitness);
+
+        clone.setProblem(problem);
+        clone.setDemands(demands);
+        clone.setDropTime(dropTime);
+        clone.setDistanceMatrix(distanceMatrix);
+
+        return clone;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Solution)) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+
+        Solution sol = (Solution) obj;
+
+        if (sol.getFitness() != getFitness()) {
+            return false; //BELKİ KAPATILABİLİR (AYNI ÇÖZÜM KÜSÜRATLARLA FARKLI FİTNESS VEREBİLİR Mİ?) !!!!!
+        }
+
+        //check routes
+        ArrayList<ArrayList<Integer>> otherSolution = Util.turnSolutiontoArrayLists(sol);
+        ArrayList<ArrayList<Integer>> thisSolution = Util.turnSolutiontoArrayLists(this);
+
+        int sizeOther = otherSolution.size();
+        int sizeThis = thisSolution.size();
+
+        if (sizeOther != sizeThis) {
+            return false;
+        }
+
+        for (int i = 0; i < sizeThis; i++) {
+            boolean match = false;
+            // find match of i. route
+            ArrayList<Integer> thisRoute = thisSolution.get(i);
+            for (int j = 0; j < sizeOther; j++) {
+                ArrayList<Integer> otherRoute = otherSolution.get(j);
+                int thisRouteLength = thisRoute.size();
+                int otherRouteLength = otherRoute.size();
+                int index = 0;
+                match = false;
+
+                if (thisRouteLength != otherRouteLength) {
+                    continue;
+                }
+
+                //straight
+                while (Objects.equals(thisRoute.get(index), otherRoute.get(index))) {
+                    index++;
+
+                    if (index == thisRouteLength) { //two routes are equal
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    break;
+                }
+
+                //reverse
+                index = 0;
+
+                while (Objects.equals(thisRoute.get(index), otherRoute.get(thisRouteLength - index - 1))) {
+                    index++;
+
+                    if (index == thisRouteLength) { //two routes are equal
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    break;
+                }
+            }
+
+            if (!match) { //one of the routes does not matched with any oother route
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        
+        ArrayList<ArrayList<Integer>> routes = Util.turnSolutiontoArrayLists(this);
+        ArrayList<String> routeCodes = new ArrayList<>(routes.size());
+        
+        for (ArrayList<Integer> route : routes) {
+            String str = "";
+            int leftIndex = 0;
+            int rightIndex = route.size()-1;
+            while (leftIndex < rightIndex) {
+                int product = route.get(leftIndex++) * route.get(rightIndex--);
+                str += product;
+            }
+            if (leftIndex == rightIndex) {
+                str += route.get(leftIndex);
+            }
+            routeCodes.add(str);
+        }
+        
+        Collections.sort(routeCodes);
+        hash = 53 * hash + Objects.hashCode(routeCodes);
+        
+        return hash;
+    }
+
     public ArrayList<ArrayList<Integer>> getRoutesAsArraylists() {
         ArrayList<ArrayList<Integer>> routes = new ArrayList<>();
         ArrayList<Integer> route = new ArrayList<>();
@@ -507,4 +769,54 @@ public class Solution {
         return routes;
     }
 
+        public ArrayList<Integer> getDemandOfEachRoute() {
+        ArrayList<Integer> routeDemands = new ArrayList<>();
+        
+        int demand = 0;
+        int startNode = n + 1;
+        int currentNode = startNode;
+        int nextNode = next[currentNode];
+        int routeNo = 0;
+        while (nextNode != startNode) {
+            if (nextNode > n) {
+                routeNo++;
+                routeDemands.add(demand);
+                demand = 0;
+            } else {
+                demand += demands[nextNode];
+            }
+            currentNode = next[currentNode];
+            nextNode = next[currentNode];
+        }
+        
+        routeDemands.add(demand);
+        return routeDemands;
+    }
+        
+        public ArrayList<Double> getTimeOfEachRoute() {
+        ArrayList<Double> routeTimes = new ArrayList<>();
+        double time = 0;
+        int startNode = n + 1;
+        int currentNode = startNode;
+        int nextNode = next[currentNode];
+        int routeNo = 0;
+        while (nextNode != startNode) {
+            if (nextNode > n) {
+                routeNo++;
+                time += distanceMatrix[currentNode][0];
+                time = Util.applyPrecision(time, 2);
+                routeTimes.add(time);
+                time = 0;
+            } else {
+                time += distanceMatrix[currentNode > n ? 0 : currentNode][nextNode] + dropTime;
+            }
+            currentNode = next[currentNode];
+            nextNode = next[currentNode];
+        }
+        time += distanceMatrix[currentNode][0];
+        routeTimes.add(Util.applyPrecision(time, 2));
+        
+        return routeTimes;
+    }
+        
 }

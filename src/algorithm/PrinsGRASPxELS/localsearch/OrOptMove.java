@@ -5,8 +5,10 @@
  */
 package algorithm.PrinsGRASPxELS.localsearch;
 
+import algorithm.beasley.Beasley;
+import problem.Problem;
 import problem.Solution;
-import utility.Util;
+import util.Util;
 
 /**
  *
@@ -19,8 +21,8 @@ public class OrOptMove extends LocalSearch {
     private int demandOft2t5String;
     double timeOft2t5String;
 
-    public OrOptMove() {
-        super();
+    public OrOptMove(Problem problem) {
+        super(problem);
     }
 
     @Override
@@ -119,7 +121,7 @@ public class OrOptMove extends LocalSearch {
                             + c[t3 > n ? 0 : t3][t4 > n ? 0 : t4] - c[t4 > n ? 0 : t4][t5]
                             + c[t5][t6 > n ? 0 : t6] - c[t6 > n ? 0 : t6][t1 > n ? 0 : t1];
 
-                    G = Util.applyPrecision(G, 2);
+                    G = Util.applyPrecision(G, 4);
 
                     if (G > GStar) {
                         GStar = G;
@@ -222,7 +224,7 @@ public class OrOptMove extends LocalSearch {
                             + c[t3 > n ? 0 : t3][t4 > n ? 0 : t4] - c[t4 > n ? 0 : t4][t5 > n ? 0 : t5]
                             + c[t5 > n ? 0 : t5][t6 > n ? 0 : t6] - c[t6 > n ? 0 : t6][t1 > n ? 0 : t1];
 
-                    G = Util.applyPrecision(G, 2);
+                    G = Util.applyPrecision(G, 4);
 
                     if (G > GStar) {
                         GStar = G;
@@ -323,7 +325,7 @@ public class OrOptMove extends LocalSearch {
                                 + c[t3 > n ? 0 : t3][t4 > n ? 0 : t4] - c[t4 > n ? 0 : t4][t5 > n ? 0 : t5]
                                 + c[t5 > n ? 0 : t5][t6 > n ? 0 : t6] - c[t6 > n ? 0 : t6][t1 > n ? 0 : t1];
 
-                        G = Util.applyPrecision(G, 2);
+                        G = Util.applyPrecision(G, 4);
 
                         if (G > GStar) {
                             GStar = G;
@@ -352,7 +354,6 @@ public class OrOptMove extends LocalSearch {
 
     @Override
     protected void updateSolutionLinks() {
-//        solution.printTours();
         int t2Star, t4Star, t6Star;
 
         t2Star = next[t1Star];
@@ -362,20 +363,8 @@ public class OrOptMove extends LocalSearch {
         solution.setNext(t1Star, t6Star);
         solution.setNext(t3Star, t2Star);
         solution.setNext(t5Star, t4Star);
-
+        
         solution.updateAfterLocalSearchModification(GStar);
-
-//        if (!solution.checkSolution(-1)) {
-//            System.out.println("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
-//            System.out.println("t1Star: " + t1Star);
-//            System.out.println("t2Star: " + t2Star);
-//            System.out.println("t3Star: " + t3Star);
-//            System.out.println("t4Star: " + t4Star);
-//            System.out.println("t5Star: " + t5Star);
-//            System.out.println("t6Star: " + t6Star);
-//            solution.printTours();
-//            System.out.println("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
-//        }
     }
 
     private void calculateOrders() {

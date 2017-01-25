@@ -56,7 +56,7 @@ import org.apache.commons.math3.random.HaltonSequenceGenerator;
 import org.apache.commons.math3.random.RandomVectorGenerator;
 import problem.Problem;
 import problem.Solution;
-import utility.Util;
+import util.Util;
 
 /**
  *
@@ -426,6 +426,7 @@ public class MainWindow extends javax.swing.JFrame {
         for (int i = 0; i < size; i++) {
             ArrayList<Node> nodeRoute = new ArrayList<>();
             ArrayList<Integer> route = routes.get(i);
+            
             for (int j = 0; j < route.size() - 1; j++) {
                 int from = route.get(j);
                 int to = route.get(j + 1);
@@ -1694,7 +1695,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
 
         //construct problem
-        Problem problem = Problem.getInstance();
+        Problem problem = new Problem();
         problem.setDemands(demands);
         problem.setDistanceMatrix(distanceMatrix);
         problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
@@ -1718,10 +1719,11 @@ public class MainWindow extends javax.swing.JFrame {
         jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
         jProgressBar1.setValue(0);
 
-        GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(params, jProgressBar1);
+        GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
         Thread algorithmThread;
         algorithmThread = new Thread() {
             public void run() {
+                //Solution sol = gels.solve();
                 Solution sol = gels.solve();
                 solution = constructSolutionByNodes(sol, problem.getDepot(), dmc);
                 java.awt.EventQueue.invokeLater(() -> {
@@ -1750,7 +1752,7 @@ public class MainWindow extends javax.swing.JFrame {
                     totalTime += times.get(i);
                 }
 
-                resultingTour += "\nTOTAL TIME: " + utility.Util.applyPrecision(totalTime, 2);
+                resultingTour += "\nTOTAL TIME: " + util.Util.applyPrecision(totalTime, 2);
                 jTextAreaResultingTours.setText(resultingTour);
             }
         };
@@ -1968,7 +1970,7 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = Problem.getInstance();
+                    Problem problem = new Problem();
                     problem.setDemands(demands);
                     problem.setDistanceMatrix(distanceMatrix);
                     problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
@@ -1992,11 +1994,10 @@ public class MainWindow extends javax.swing.JFrame {
                     jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(params, jProgressBar1);
+                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
                     long startTime = System.nanoTime();
                     Solution sol = gels.solve();
                     long estimatedTime = System.nanoTime() - startTime;
-                    sol.calculateFitness();
                     System.out.println(nos + " " + noc + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
                 }
             }
@@ -2110,7 +2111,7 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = Problem.getInstance();
+                    Problem problem = new Problem();
                     problem.setDemands(demands);
                     problem.setDistanceMatrix(distanceMatrix);
                     problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
@@ -2134,11 +2135,11 @@ public class MainWindow extends javax.swing.JFrame {
                     jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(params, jProgressBar1);
+                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
                     long startTime = System.nanoTime();
                     Solution sol = gels.solve();
                     long estimatedTime = System.nanoTime() - startTime;
-                    sol.calculateFitness();
+                    
                     System.out.println(cc + " " + noc + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
                 }
             }
@@ -2252,7 +2253,7 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = Problem.getInstance();
+                    Problem problem = new Problem();
                     problem.setDemands(demands);
                     problem.setDistanceMatrix(distanceMatrix);
                     problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
@@ -2276,11 +2277,10 @@ public class MainWindow extends javax.swing.JFrame {
                     jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(params, jProgressBar1);
+                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
                     long startTime = System.nanoTime();
                     Solution sol = gels.solve();
                     long estimatedTime = System.nanoTime() - startTime;
-                    sol.calculateFitness();
                     System.out.println(cc + " " + nos + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
                 }
             }
@@ -2396,7 +2396,7 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = Problem.getInstance();
+                    Problem problem = new Problem();
                     problem.setDemands(demands);
                     problem.setDistanceMatrix(distanceMatrix);
                     problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
@@ -2420,11 +2420,10 @@ public class MainWindow extends javax.swing.JFrame {
                     jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(params, jProgressBar1);
+                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
                     long startTime = System.nanoTime();
                     Solution sol = gels.solve();
                     long estimatedTime = System.nanoTime() - startTime;
-                    sol.calculateFitness();
                     System.out.println(nos + " " + cc + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
                 }
             }

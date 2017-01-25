@@ -14,6 +14,7 @@ import problem.Solution;
  * @author osman
  */
 public abstract class LocalSearch {
+
     //algorithm parameters
     protected Solution solution; //solution that local search will be applied to
     protected boolean bi; //if true, LS will run with best improvement strategy
@@ -38,18 +39,25 @@ public abstract class LocalSearch {
     protected NeighborElement[][] mNeighborLists;
     protected NeighborElement[] NL;
     //problem variables
-    protected Problem problem = Problem.getInstance();
-    protected int n = problem.getNumOfCustomers();
-    protected double[][] c = problem.getDistanceMatrix(); //distanceMatrix
-    protected int L = problem.getMaxRouteTime(); //max route time
-    protected int Q = problem.getVehicleCapacity(); //vehicle capacity
-    protected int[] demands = problem.getDemands(); //index zero is the depot (no demand)
-    protected int dropTime = problem.getDropTime(); //service time
+    protected Problem problem;
+    protected int n;
+    protected double[][] c; //distanceMatrix
+    protected int L; //max route time
+    protected int Q; //vehicle capacity
+    protected int[] demands; //index zero is the depot (no demand)
+    protected int dropTime; //service time
 
-    public LocalSearch() {
+    public LocalSearch(Problem problem) {
         super();
+        this.problem = problem;
+        n = problem.getNumOfCustomers();
+        c = problem.getDistanceMatrix();
+        L = problem.getMaxRouteTime();
+        Q = problem.getVehicleCapacity();
+        demands = problem.getDemands();
+        dropTime = problem.getDropTime();
     }
-    
+
     public void setCommonVariables() {
         this.mNeighborLists = solution.getmNeighborLists();
         this.next = solution.getNext();
@@ -66,5 +74,5 @@ public abstract class LocalSearch {
     public abstract double optimize(Solution solution, boolean bi, int lambda);
 
     protected abstract void updateSolutionLinks();
-    
+
 }

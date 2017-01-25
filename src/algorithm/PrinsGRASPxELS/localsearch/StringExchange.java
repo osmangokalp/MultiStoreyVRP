@@ -5,8 +5,9 @@
  */
 package algorithm.PrinsGRASPxELS.localsearch;
 
+import problem.Problem;
 import problem.Solution;
-import utility.Util;
+import util.Util;
 
 /**
  *
@@ -19,8 +20,8 @@ public class StringExchange extends LocalSearch {
     private int demandOft2t6String, demandOft8t4String;
     private double timeOft2t6String, timeOft8t4String;
 
-    public StringExchange() {
-        super();
+    public StringExchange(Problem problem) {
+        super(problem);
     }
 
     @Override
@@ -145,7 +146,7 @@ public class StringExchange extends LocalSearch {
                                 G = c[t1 > n ? 0 : t1][t2] + c[t5 > n ? 0 : t5][t6] + c[t3 > n ? 0 : t3][t4] + c[t7 > n ? 0 : t7][t8]
                                         - c[t6][t3 > n ? 0 : t3] - c[t8][t1 > n ? 0 : t1] - c[t2][t7 > n ? 0 : t7] - c[t4][t5 > n ? 0 : t5];
 
-                                G = Util.applyPrecision(G, 2);
+                                G = Util.applyPrecision(G, 4);
 
                                 if (G > GStar) {
                                     GStar = G;
@@ -236,7 +237,7 @@ public class StringExchange extends LocalSearch {
                                 G = c[t1 > n ? 0 : t1][t2] + c[t5 > n ? 0 : t5][t6] + c[t3 > n ? 0 : t3][t4] + c[t7 > n ? 0 : t7][t8]
                                         - c[t6][t3 > n ? 0 : t3] - c[t8][t1 > n ? 0 : t1] - c[t2][t7 > n ? 0 : t7] - c[t4][t5 > n ? 0 : t5];
 
-                                G = Util.applyPrecision(G, 2);
+                                G = Util.applyPrecision(G, 4);
 
                                 if (G > GStar) {
                                     GStar = G;
@@ -271,23 +272,12 @@ public class StringExchange extends LocalSearch {
     protected void updateSolutionLinks() {
         int t2Star, t4Star, t6Star, t8Star;
 
-//        System.out.println("Before update:");
-//        solution.printTours();
-//        System.out.println("t1:" + t1Star);
-//        System.out.println("t3:" + t3Star);
-//        System.out.println("t5:" + t5Star);
-//        System.out.println("t7:" + t7Star);
-//        System.out.println("sigma:" + sigmaStar);
         if (sigmaStar == 1) {
             t2Star = next[t1Star];
             t4Star = prev[t3Star];
             t6Star = prev[t5Star];
             t8Star = next[t7Star];
 
-//            System.out.println("t2:" + t2Star);
-//            System.out.println("t4:" + t4Star);
-//            System.out.println("t6:" + t6Star);
-//            System.out.println("t8:" + t8Star);
             solution.setNext(t1Star, t8Star);
             solution.setNext(t4Star, t5Star);
             solution.setNext(t7Star, t2Star);
@@ -299,10 +289,6 @@ public class StringExchange extends LocalSearch {
             t6Star = next[t5Star];
             t8Star = prev[t7Star];
 
-//            System.out.println("t2:" + t2Star);
-//            System.out.println("t4:" + t4Star);
-//            System.out.println("t6:" + t6Star);
-//            System.out.println("t8:" + t8Star);
             solution.setNext(t3Star, t6Star);
             solution.setNext(t2Star, t7Star);
             solution.setNext(t5Star, t4Star);
@@ -310,15 +296,7 @@ public class StringExchange extends LocalSearch {
 
         }
         solution.updateAfterLocalSearchModification(GStar);
-//        if (!solution.checkSolution()) {
-//            System.out.println("CHECK SOLUTION BASARISIZ!!!");
-//            System.out.println("\tt1:" + t1Star);
-//            System.out.println("\tt3:" + t3Star);
-//            System.out.println("\tt5:" + t5Star);
-//            System.out.println("\tt7:" + t7Star);
-//            System.out.println("\tinversion: " + inversion);
-//            System.out.println("\tsigma:" + sigmaStar);
-//        }
+
     }
 
 }
