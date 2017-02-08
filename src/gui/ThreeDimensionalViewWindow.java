@@ -118,7 +118,7 @@ public class ThreeDimensionalViewWindow extends Frame {
         westPanel.add(BorderLayout.NORTH, westNorthPanel);
         Panel westCenterPanel = new Panel();
         westPanel.add(BorderLayout.CENTER, westCenterPanel);
-        Checkbox textsCheckBox = new Checkbox("Texts");
+        Checkbox textsCheckBox = new Checkbox("Show Labels");
         textsCheckBox.setState(true);
         textsCheckBox.setFont(new Font("", Font.BOLD, 12));
         westNorthPanel.add(textsCheckBox);
