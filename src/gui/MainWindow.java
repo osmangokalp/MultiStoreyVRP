@@ -1949,8 +1949,10 @@ public class MainWindow extends javax.swing.JFrame {
                 Storey storey = storeys.get(i);
                 for (int j = 0; j < noc; j++) {
                     double[] randomVector = generator.nextVector();
+                    randomVector[0] = util.Util.applyPrecision(randomVector[0], 2);
+                    randomVector[1] = util.Util.applyPrecision(randomVector[1], 2);
                     EuclideanCoordinate coordinate = new EuclideanCoordinate(randomVector[0] * storeyWidth, randomVector[1] * storeyWidth);
-                    Node node = new Node(storey, coordinate, MainWindow.this.nodeID++, random.nextInt(10) + 1);
+                    Node node = new Node(storey, coordinate, MainWindow.this.nodeID++, random.nextInt(20) + 1);
                     addNewNode(node);
                 }
             }
