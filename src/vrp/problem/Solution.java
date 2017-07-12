@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package problem;
+package vrp.problem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
-import util.Util;
+import vrp.util.Util;
 
 /**
  *
@@ -307,9 +307,9 @@ public class Solution {
     }
 
     /**
-     * Should be called if the tour possibly be divided into unconnected sub-tours.
-     * After this method, updateAfterLocalSearchModification() method should also be called
-     * to re-calculate help vectors.
+     * Should be called if the tour possibly be divided into unconnected
+     * sub-tours. After this method, updateAfterLocalSearchModification() method
+     * should also be called to re-calculate help vectors.
      */
     public void makeItOneCircularListAgain() {
         int node, d1, d2 = -1, s1, s2;
@@ -334,25 +334,27 @@ public class Solution {
                 break;
             }
         }
-        
+
         if (d1 == -1 || d2 == -1) {
             return; //It is already a circular list
         }
-        
+
         s1 = next[d1];
         s2 = next[d2];
-        
+
         setNext(d2, s1);
         setNext(d1, s2);
     }
 
-    
     public boolean checkSolution(int algNo) {
         boolean result = true;
         double total = 0, demand = 0, time = 0, totalTime = 0;
         int startNode = n + 1;
         int currentNode = startNode;
         int nextNode = next[currentNode];
+        if (currentNode > n && nextNode > n) {
+            System.out.println("arka arkaya depo!!!");
+        }
         int routeNo = 0;
         while (nextNode != startNode) {
             total += distanceMatrix[currentNode > n ? 0 : currentNode][nextNode > n ? 0 : nextNode];
@@ -380,6 +382,10 @@ public class Solution {
             }
             currentNode = next[currentNode];
             nextNode = next[currentNode];
+
+            if (currentNode > n && nextNode > n) {
+                System.out.println("arka arkaya depo!!!");
+            }
         }
         time += distanceMatrix[currentNode][0];
         time = Util.applyPrecision(time, 4);
@@ -710,17 +716,49 @@ public class Solution {
 
     }
 
+    public ArrayList<Integer> getDemandOfEachRoute() {
+        ArrayList<Integer> routeDemands = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> routes = Util.turnSolutiontoArrayLists(this);
+
+        for (ArrayList<Integer> route : routes) {
+            int demand = 0;
+            for (int customer : route) {
+                demand += demands[customer];
+            }
+            routeDemands.add(demand);
+        }
+
+        return routeDemands;
+    }
+
+    public ArrayList<Double> getTimeOfEachRoute() {
+        ArrayList<Double> routeTimes = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> routes = Util.turnSolutiontoArrayLists(this);
+
+        for (ArrayList<Integer> route : routes) {
+            double time = 0;
+            time += distanceMatrix[0][route.get(0)] + distanceMatrix[route.get(route.size()-1)][0]; //depot connections
+            time += route.size() * dropTime; //service times
+            for (int i = 0; i < route.size() - 1; i++) {
+                time += distanceMatrix[route.get(i)][route.get(i+1)];
+            }
+            routeTimes.add(time);
+        }
+
+        return routeTimes;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
-        
+
         ArrayList<ArrayList<Integer>> routes = Util.turnSolutiontoArrayLists(this);
         ArrayList<String> routeCodes = new ArrayList<>(routes.size());
-        
+
         for (ArrayList<Integer> route : routes) {
             String str = "";
             int leftIndex = 0;
-            int rightIndex = route.size()-1;
+            int rightIndex = route.size() - 1;
             while (leftIndex < rightIndex) {
                 int product = route.get(leftIndex++) * route.get(rightIndex--);
                 str += product;
@@ -730,93 +768,11 @@ public class Solution {
             }
             routeCodes.add(str);
         }
-        
+
         Collections.sort(routeCodes);
         hash = 53 * hash + Objects.hashCode(routeCodes);
-        
+
         return hash;
     }
 
-    public ArrayList<ArrayList<Integer>> getRoutesAsArraylists() {
-        ArrayList<ArrayList<Integer>> routes = new ArrayList<>();
-        ArrayList<Integer> route = new ArrayList<>();
-        int node;
-        boolean[] startNodeConsidered = new boolean[k];
-
-        for (int depotNode = n + 1; depotNode <= m; depotNode++) {
-            if (!startNodeConsidered[depotNode - n - 1]) {
-//                System.out.print("\t\t" + depotNode + ", ");
-                startNodeConsidered[depotNode - n - 1] = true;
-                node = depotNode;
-                node = next[node];
-                while (node != depotNode) {
-
-//                    System.out.print(node + ", ");
-                    if (node > n) {
-                        startNodeConsidered[node - n - 1] = true;
-                        routes.add(route);
-                        route = new ArrayList<>();
-                    } else {
-                        route.add(node);
-
-                    }
-                    node = next[node];
-                }
-//                System.out.print(node + ", ");
-                routes.add(route);
-            }
-        }
-        return routes;
-    }
-
-        public ArrayList<Integer> getDemandOfEachRoute() {
-        ArrayList<Integer> routeDemands = new ArrayList<>();
-        
-        int demand = 0;
-        int startNode = n + 1;
-        int currentNode = startNode;
-        int nextNode = next[currentNode];
-        int routeNo = 0;
-        while (nextNode != startNode) {
-            if (nextNode > n) {
-                routeNo++;
-                routeDemands.add(demand);
-                demand = 0;
-            } else {
-                demand += demands[nextNode];
-            }
-            currentNode = next[currentNode];
-            nextNode = next[currentNode];
-        }
-        
-        routeDemands.add(demand);
-        return routeDemands;
-    }
-        
-        public ArrayList<Double> getTimeOfEachRoute() {
-        ArrayList<Double> routeTimes = new ArrayList<>();
-        double time = 0;
-        int startNode = n + 1;
-        int currentNode = startNode;
-        int nextNode = next[currentNode];
-        int routeNo = 0;
-        while (nextNode != startNode) {
-            if (nextNode > n) {
-                routeNo++;
-                time += distanceMatrix[currentNode][0];
-                time = Util.applyPrecision(time, 2);
-                routeTimes.add(time);
-                time = 0;
-            } else {
-                time += distanceMatrix[currentNode > n ? 0 : currentNode][nextNode] + dropTime;
-            }
-            currentNode = next[currentNode];
-            nextNode = next[currentNode];
-        }
-        time += distanceMatrix[currentNode][0];
-        routeTimes.add(Util.applyPrecision(time, 2));
-        
-        return routeTimes;
-    }
-        
 }

@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package algorithm.PrinsGRASPxELS.localsearch;
+package vrp.algorithm.localsearch;
 
-import problem.Problem;
-import problem.Solution;
-import util.Util;
+import vrp.problem.Problem;
+import vrp.problem.Solution;
+import vrp.util.Util;
 
 /**
  *
@@ -17,6 +17,7 @@ public class StringExchangeWithInversion extends LocalSearch {
 
     private int t3, t4, t5, t6, t7, t8, t1Star, t3Star, t5Star, t7Star, sigmaStar;
     private int sigma;
+    private int[] order;
     private int demandOft2t6String, demandOft8t4String;
     private double timeOft2t6String, timeOft8t4String;
 
@@ -30,6 +31,7 @@ public class StringExchangeWithInversion extends LocalSearch {
         this.bi = bi;
         this.lambda = lambda;
         setCommonVariables();
+        calculateOrders();
 
         improved = false;
         GStar = 0;
@@ -111,6 +113,11 @@ public class StringExchangeWithInversion extends LocalSearch {
                                     if (t8 == t5 || t8 == t6 || t8 == t2 || t8 == t1) {
                                         continue;
                                     }
+                                    
+                                    if (!(order[t8] > order[t6] || order[t2] > order[t4])) { //intersection of strings!
+                                        continue;
+                                    }
+                                    
                                     if (tripNo[t2] == tripNo[t4]) { //both strings are in the same tour
                                         capaok = true;
                                     } else {
@@ -174,11 +181,7 @@ public class StringExchangeWithInversion extends LocalSearch {
                                     break; //exchanged strings have to consists of customer nodes only
                                 }
 
-                                if (t5 == t3 || t5 == t4 || t5 == t8 || t5 == t7) { //t values can not be same
-                                    continue;
-                                }
-
-                                if (t6 == t3 || t6 == t4 || t6 == t8 || t6 == t7) { //t values can not be same
+                                if (t5 == t3 || t5 == t4 || t6 == t3 || t6 == t4) { //t values can not be same
                                     continue;
                                 }
 
@@ -196,6 +199,10 @@ public class StringExchangeWithInversion extends LocalSearch {
                                     }
 
                                     if (t8 == t5 || t8 == t6 || t8 == t2 || t8 == t1) {
+                                        continue;
+                                    }
+                                    
+                                    if (!(order[t4] > order[t2] || order[t6] > order[t8])) { //intersection of strings!
                                         continue;
                                     }
 
@@ -291,4 +298,15 @@ public class StringExchangeWithInversion extends LocalSearch {
 
     }
 
+    private void calculateOrders() {
+        order = new int[solution.getM() + 1];
+        int start = n + 1;
+        order[start] = 0;
+        int temp = next[start];
+        int index = 1;
+        while (temp != start) {
+            order[temp] = index++;
+            temp = next[temp];
+        }
+    }
 }

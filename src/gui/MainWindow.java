@@ -5,9 +5,6 @@
  */
 package gui;
 
-import algorithm.PrinsGRASPxELS.GRASPxELSAlgorithm;
-import algorithm.PrinsGRASPxELS.ParameterList;
-import algorithm.beasley.Beasley;
 import algorithm.floyds.FloydsDistanceMatrixConstructor;
 import java.awt.CardLayout;
 import java.awt.GridLayout;
@@ -28,7 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import buildingmodel.Connection;
-import problem.EuclideanCoordinate;
+import vrp.problem.EuclideanCoordinate;
 import buildingmodel.Node;
 import buildingmodel.Storey;
 import java.io.BufferedWriter;
@@ -58,9 +55,11 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.math3.random.HaltonSequenceGenerator;
 import org.apache.commons.math3.random.RandomVectorGenerator;
-import problem.Problem;
-import problem.Solution;
-import util.Util;
+import vrp.problem.Problem;
+import vrp.problem.Solution;
+import vrp.util.Util;
+import vrp.algorithm.metaheuristics.ILS;
+import vrp.util.TerminationCondition;
 
 /**
  *
@@ -432,7 +431,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private ArrayList<ArrayList<Node>> constructSolutionByNodes(Solution bestSolution, int depotNode, FloydsDistanceMatrixConstructor dmc) {
         ArrayList<ArrayList<Node>> solutionByNodes = new ArrayList<>();
-        ArrayList<ArrayList<Integer>> routes = bestSolution.getRoutesAsArraylists();
+        ArrayList<ArrayList<Integer>> routes = Util.turnSolutiontoArrayLists(bestSolution);
         int size = routes.size();
 
         for (int i = 0; i < size; i++) {
@@ -689,19 +688,11 @@ public class MainWindow extends javax.swing.JFrame {
         jTextFieldDropTime = new javax.swing.JTextField();
         jPanelSetAlgorithm = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jTextFieldNp = new javax.swing.JTextField();
+        jTextFieldMaxNumberOfLocalSearches = new javax.swing.JTextField();
         jLabel28 = new javax.swing.JLabel();
-        jTextFieldPMin = new javax.swing.JTextField();
-        jLabel30 = new javax.swing.JLabel();
-        jTextFieldNi = new javax.swing.JTextField();
-        jLabel29 = new javax.swing.JLabel();
-        jTextFieldPMax = new javax.swing.JTextField();
-        jLabel27 = new javax.swing.JLabel();
-        jTextFieldNc = new javax.swing.JTextField();
+        jTextFieldPerturbationSize = new javax.swing.JTextField();
         jLabel24 = new javax.swing.JLabel();
         jTextFieldLambda = new javax.swing.JTextField();
-        jLabel25 = new javax.swing.JLabel();
-        jTextFieldBeta = new javax.swing.JTextField();
         jLabel26 = new javax.swing.JLabel();
         jCheckBoxBI = new javax.swing.JCheckBox();
         jButtonSolve = new javax.swing.JButton();
@@ -1213,42 +1204,21 @@ public class MainWindow extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Problem Parameters", jPanelSetProblem);
 
-        jPanelSetAlgorithm.setLayout(new java.awt.GridLayout(4, 4, 10, 10));
+        jPanelSetAlgorithm.setLayout(new java.awt.GridLayout(4, 2, 10, 10));
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel2.setText("np:");
+        jLabel2.setText("max # of local searches:");
         jPanelSetAlgorithm.add(jLabel2);
 
-        jTextFieldNp.setText("5");
-        jPanelSetAlgorithm.add(jTextFieldNp);
+        jTextFieldMaxNumberOfLocalSearches.setText("5000");
+        jPanelSetAlgorithm.add(jTextFieldMaxNumberOfLocalSearches);
 
         jLabel28.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel28.setText("pMin:");
+        jLabel28.setText("perturbation size:");
         jPanelSetAlgorithm.add(jLabel28);
 
-        jTextFieldPMin.setText("1");
-        jPanelSetAlgorithm.add(jTextFieldPMin);
-
-        jLabel30.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel30.setText("ni:");
-        jPanelSetAlgorithm.add(jLabel30);
-
-        jTextFieldNi.setText("100");
-        jPanelSetAlgorithm.add(jTextFieldNi);
-
-        jLabel29.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel29.setText("pMax:");
-        jPanelSetAlgorithm.add(jLabel29);
-
-        jTextFieldPMax.setText("1");
-        jPanelSetAlgorithm.add(jTextFieldPMax);
-
-        jLabel27.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel27.setText("nc:");
-        jPanelSetAlgorithm.add(jLabel27);
-
-        jTextFieldNc.setText("10");
-        jPanelSetAlgorithm.add(jTextFieldNc);
+        jTextFieldPerturbationSize.setText("3");
+        jPanelSetAlgorithm.add(jTextFieldPerturbationSize);
 
         jLabel24.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel24.setText("lambda:");
@@ -1256,13 +1226,6 @@ public class MainWindow extends javax.swing.JFrame {
 
         jTextFieldLambda.setText("3");
         jPanelSetAlgorithm.add(jTextFieldLambda);
-
-        jLabel25.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel25.setText("beta:");
-        jPanelSetAlgorithm.add(jLabel25);
-
-        jTextFieldBeta.setText("0.05");
-        jPanelSetAlgorithm.add(jTextFieldBeta);
 
         jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel26.setText("bi:");
@@ -1479,11 +1442,13 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jButtonSolve, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
-                        .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jButtonSolve, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                            .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 75, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3))
+                .addContainerGap())
         );
 
         pack();
@@ -1790,37 +1755,21 @@ public class MainWindow extends javax.swing.JFrame {
             demands[i] = node.getDemand();
         }
 
-        //construct problem
-        Problem problem = new Problem();
-        problem.setDemands(demands);
-        problem.setDistanceMatrix(distanceMatrix);
-        problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-        problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-        problem.setNumOfCustomers(nodeCount - 1);
-        problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-        problem.setDepot(0);
+        Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-        ParameterList params = new ParameterList();
-        params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-        params.setRandom(random);
-        params.setBi(jCheckBoxBI.isSelected());
-        params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-        params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-        params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-        params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-        params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-        params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+        TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
         jProgressBar1.setMinimum(0);
-        jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+        jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
         jProgressBar1.setValue(0);
 
-        GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+        ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
         Thread algorithmThread;
         algorithmThread = new Thread() {
             public void run() {
                 //Solution sol = gels.solve();
-                Solution sol = gels.solve();
+                Solution sol = ils.solve();
                 solution = constructSolutionByNodes(sol, problem.getDepot(), dmc);
                 java.awt.EventQueue.invokeLater(() -> {
                     ThreeDimensionalViewWindow tdw = new ThreeDimensionalViewWindow(storeys, storeyWidth, connections, solution);
@@ -1848,7 +1797,7 @@ public class MainWindow extends javax.swing.JFrame {
                     totalTime += times.get(i);
                 }
 
-                resultingTour += "\nTOTAL TIME: " + util.Util.applyPrecision(totalTime, 2);
+                resultingTour += "TOTAL ROUTE TIME: " + Util.applyPrecision(totalTime, 2);
                 jTextAreaResultingTours.setText(resultingTour);
             }
         };
@@ -1856,6 +1805,20 @@ public class MainWindow extends javax.swing.JFrame {
 
 
     }//GEN-LAST:event_jButtonSolveActionPerformed
+
+    private Problem constructProblem(int[] demands, double[][] distanceMatrix, int nodeCount) throws NumberFormatException {
+        //construct problem
+        Problem problem = new Problem();
+        problem.setDemands(demands);
+        problem.setDistanceMatrix(distanceMatrix);
+        problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
+        problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
+        problem.setNumOfCustomers(nodeCount - 1);
+        problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
+        problem.setDepot(0);
+        problem.setnNeighborLists(Util.constructNeighborLists(nodeCount - 1, distanceMatrix));
+        return problem;
+    }
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         double x1Pos = Double.valueOf(jTextFieldAddConnectionX1Pos.getText());
@@ -1949,8 +1912,8 @@ public class MainWindow extends javax.swing.JFrame {
                 Storey storey = storeys.get(i);
                 for (int j = 0; j < noc; j++) {
                     double[] randomVector = generator.nextVector();
-                    randomVector[0] = util.Util.applyPrecision(randomVector[0], 2);
-                    randomVector[1] = util.Util.applyPrecision(randomVector[1], 2);
+                    randomVector[0] = Util.applyPrecision(randomVector[0], 2);
+                    randomVector[1] = Util.applyPrecision(randomVector[1], 2);
                     EuclideanCoordinate coordinate = new EuclideanCoordinate(randomVector[0] * storeyWidth, randomVector[1] * storeyWidth);
                     Node node = new Node(storey, coordinate, MainWindow.this.nodeID++, random.nextInt(20) + 1);
                     addNewNode(node);
@@ -2067,33 +2030,18 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = new Problem();
-                    problem.setDemands(demands);
-                    problem.setDistanceMatrix(distanceMatrix);
-                    problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                    problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                    problem.setNumOfCustomers(nodeCount - 1);
-                    problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                    problem.setDepot(0);
+                    Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                    ParameterList params = new ParameterList();
-                    params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                    params.setRandom(random);
-                    params.setBi(jCheckBoxBI.isSelected());
-                    params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                    params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                    params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                    params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                    params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                    params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                    TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                     jProgressBar1.setMinimum(0);
-                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                    ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                            Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                     long startTime = System.nanoTime();
-                    Solution sol = gels.solve();
+                    Solution sol = ils.solve();
                     long estimatedTime = System.nanoTime() - startTime;
                     System.out.println(nos + " " + noc + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
                 }
@@ -2208,33 +2156,18 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = new Problem();
-                    problem.setDemands(demands);
-                    problem.setDistanceMatrix(distanceMatrix);
-                    problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                    problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                    problem.setNumOfCustomers(nodeCount - 1);
-                    problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                    problem.setDepot(0);
+                    Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                    ParameterList params = new ParameterList();
-                    params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                    params.setRandom(random);
-                    params.setBi(jCheckBoxBI.isSelected());
-                    params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                    params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                    params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                    params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                    params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                    params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                    TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                     jProgressBar1.setMinimum(0);
-                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                    ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                            Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                     long startTime = System.nanoTime();
-                    Solution sol = gels.solve();
+                    Solution sol = ils.solve();
                     long estimatedTime = System.nanoTime() - startTime;
 
                     System.out.println(cc + " " + noc + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
@@ -2350,33 +2283,18 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = new Problem();
-                    problem.setDemands(demands);
-                    problem.setDistanceMatrix(distanceMatrix);
-                    problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                    problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                    problem.setNumOfCustomers(nodeCount - 1);
-                    problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                    problem.setDepot(0);
+                    Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                    ParameterList params = new ParameterList();
-                    params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                    params.setRandom(random);
-                    params.setBi(jCheckBoxBI.isSelected());
-                    params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                    params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                    params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                    params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                    params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                    params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                    TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                     jProgressBar1.setMinimum(0);
-                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                    ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                            Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                     long startTime = System.nanoTime();
-                    Solution sol = gels.solve();
+                    Solution sol = ils.solve();
                     long estimatedTime = System.nanoTime() - startTime;
                     System.out.println(cc + " " + nos + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
                 }
@@ -2493,33 +2411,18 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = new Problem();
-                    problem.setDemands(demands);
-                    problem.setDistanceMatrix(distanceMatrix);
-                    problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                    problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                    problem.setNumOfCustomers(nodeCount - 1);
-                    problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                    problem.setDepot(0);
+                    Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                    ParameterList params = new ParameterList();
-                    params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                    params.setRandom(random);
-                    params.setBi(jCheckBoxBI.isSelected());
-                    params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                    params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                    params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                    params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                    params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                    params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                    TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                     jProgressBar1.setMinimum(0);
-                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                    ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                            Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                     long startTime = System.nanoTime();
-                    Solution sol = gels.solve();
+                    Solution sol = ils.solve();
                     long estimatedTime = System.nanoTime() - startTime;
                     System.out.println(nos + " " + cc + " " + t + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000);
                 }
@@ -2628,33 +2531,18 @@ public class MainWindow extends javax.swing.JFrame {
                 }
 
                 //construct problem
-                Problem problem = new Problem();
-                problem.setDemands(demands);
-                problem.setDistanceMatrix(distanceMatrix);
-                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                problem.setNumOfCustomers(nodeCount - 1);
-                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                problem.setDepot(0);
+                Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                ParameterList params = new ParameterList();
-                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                params.setRandom(random);
-                params.setBi(jCheckBoxBI.isSelected());
-                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                 jProgressBar1.setMinimum(0);
-                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                 jProgressBar1.setValue(0);
 
-                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                        Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                 long startTime = System.nanoTime();
-                Solution sol = gels.solve();
+                Solution sol = ils.solve();
                 long estimatedTime = System.nanoTime() - startTime;
 
                 int routeCount = sol.getK();
@@ -2774,33 +2662,18 @@ public class MainWindow extends javax.swing.JFrame {
                 }
 
                 //construct problem
-                Problem problem = new Problem();
-                problem.setDemands(demands);
-                problem.setDistanceMatrix(distanceMatrix);
-                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                problem.setNumOfCustomers(nodeCount - 1);
-                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                problem.setDepot(0);
+                Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                ParameterList params = new ParameterList();
-                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                params.setRandom(random);
-                params.setBi(jCheckBoxBI.isSelected());
-                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                 jProgressBar1.setMinimum(0);
-                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                 jProgressBar1.setValue(0);
 
-                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                        Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                 long startTime = System.nanoTime();
-                Solution sol = gels.solve();
+                Solution sol = ils.solve();
                 long estimatedTime = System.nanoTime() - startTime;
 
                 int routeCount = sol.getK();
@@ -2920,33 +2793,18 @@ public class MainWindow extends javax.swing.JFrame {
                 }
 
                 //construct problem
-                Problem problem = new Problem();
-                problem.setDemands(demands);
-                problem.setDistanceMatrix(distanceMatrix);
-                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                problem.setNumOfCustomers(nodeCount - 1);
-                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                problem.setDepot(0);
+                Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                ParameterList params = new ParameterList();
-                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                params.setRandom(random);
-                params.setBi(jCheckBoxBI.isSelected());
-                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                 jProgressBar1.setMinimum(0);
-                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                 jProgressBar1.setValue(0);
 
-                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                        Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                 long startTime = System.nanoTime();
-                Solution sol = gels.solve();
+                Solution sol = ils.solve();
                 long estimatedTime = System.nanoTime() - startTime;
 
                 int routeCount = sol.getK();
@@ -3068,33 +2926,18 @@ public class MainWindow extends javax.swing.JFrame {
                 }
 
                 //construct problem
-                Problem problem = new Problem();
-                problem.setDemands(demands);
-                problem.setDistanceMatrix(distanceMatrix);
-                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                problem.setNumOfCustomers(nodeCount - 1);
-                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                problem.setDepot(0);
+                Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                ParameterList params = new ParameterList();
-                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                params.setRandom(random);
-                params.setBi(jCheckBoxBI.isSelected());
-                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                 jProgressBar1.setMinimum(0);
-                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                 jProgressBar1.setValue(0);
 
-                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                        Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                 long startTime = System.nanoTime();
-                Solution sol = gels.solve();
+                Solution sol = ils.solve();
                 long estimatedTime = System.nanoTime() - startTime;
 
                 int routeCount = sol.getK();
@@ -3213,33 +3056,18 @@ public class MainWindow extends javax.swing.JFrame {
                 }
 
                 //construct problem
-                Problem problem = new Problem();
-                problem.setDemands(demands);
-                problem.setDistanceMatrix(distanceMatrix);
-                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                problem.setNumOfCustomers(nodeCount - 1);
-                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                problem.setDepot(0);
+                Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                ParameterList params = new ParameterList();
-                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                params.setRandom(random);
-                params.setBi(jCheckBoxBI.isSelected());
-                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                 jProgressBar1.setMinimum(0);
-                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                 jProgressBar1.setValue(0);
 
-                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                        Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                 long startTime = System.nanoTime();
-                Solution sol = gels.solve();
+                Solution sol = ils.solve();
                 long estimatedTime = System.nanoTime() - startTime;
 
                 int routeCount = sol.getK();
@@ -3361,33 +3189,18 @@ public class MainWindow extends javax.swing.JFrame {
                             }
 
                             //construct problem
-                            Problem problem = new Problem();
-                            problem.setDemands(demands);
-                            problem.setDistanceMatrix(distanceMatrix);
-                            problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                            problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                            problem.setNumOfCustomers(nodeCount - 1);
-                            problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                            problem.setDepot(0);
+                            Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                            ParameterList params = new ParameterList();
-                            params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                            params.setRandom(random);
-                            params.setBi(jCheckBoxBI.isSelected());
-                            params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                            params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                            params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                            params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                            params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                            params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                            TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                             jProgressBar1.setMinimum(0);
-                            jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                            jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                             jProgressBar1.setValue(0);
 
-                            GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                            ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                                    Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                             long startTime = System.nanoTime();
-                            Solution sol = gels.solve();
+                            Solution sol = ils.solve();
                             long estimatedTime = System.nanoTime() - startTime;
 
                             int routeCount = sol.getK();
@@ -3511,33 +3324,18 @@ public class MainWindow extends javax.swing.JFrame {
                             }
 
                             //construct problem
-                            Problem problem = new Problem();
-                            problem.setDemands(demands);
-                            problem.setDistanceMatrix(distanceMatrix);
-                            problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                            problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                            problem.setNumOfCustomers(nodeCount - 1);
-                            problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                            problem.setDepot(0);
+                            Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                            ParameterList params = new ParameterList();
-                            params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                            params.setRandom(random);
-                            params.setBi(jCheckBoxBI.isSelected());
-                            params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                            params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                            params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                            params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                            params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                            params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                            TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                             jProgressBar1.setMinimum(0);
-                            jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                            jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                             jProgressBar1.setValue(0);
 
-                            GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                            ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                                    Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                             long startTime = System.nanoTime();
-                            Solution sol = gels.solve();
+                            Solution sol = ils.solve();
                             long estimatedTime = System.nanoTime() - startTime;
 
                             int routeCount = sol.getK();
@@ -3660,33 +3458,18 @@ public class MainWindow extends javax.swing.JFrame {
                     }
 
                     //construct problem
-                    Problem problem = new Problem();
-                    problem.setDemands(demands);
-                    problem.setDistanceMatrix(distanceMatrix);
-                    problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                    problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                    problem.setNumOfCustomers(nodeCount - 1);
-                    problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                    problem.setDepot(0);
+                    Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                    ParameterList params = new ParameterList();
-                    params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                    params.setRandom(random);
-                    params.setBi(jCheckBoxBI.isSelected());
-                    params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                    params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                    params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                    params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                    params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                    params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                    TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                     jProgressBar1.setMinimum(0);
-                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                    jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                     jProgressBar1.setValue(0);
 
-                    GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                    ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                            Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                     long startTime = System.nanoTime();
-                    Solution sol = gels.solve();
+                    Solution sol = ils.solve();
                     long estimatedTime = System.nanoTime() - startTime;
 
                     int routeCount = sol.getK();
@@ -3806,33 +3589,18 @@ public class MainWindow extends javax.swing.JFrame {
                 }
 
                 //construct problem
-                Problem problem = new Problem();
-                problem.setDemands(demands);
-                problem.setDistanceMatrix(distanceMatrix);
-                problem.setDropTime(Integer.valueOf(jTextFieldDropTime.getText()));
-                problem.setMaxRouteTime(Integer.valueOf(jTextFieldMaxRouteTime.getText()));
-                problem.setNumOfCustomers(nodeCount - 1);
-                problem.setVehicleCapacity(Integer.valueOf(jTextFieldVehicleCapacity.getText()));
-                problem.setDepot(0);
+                Problem problem = constructProblem(demands, distanceMatrix, nodeCount);
 
-                ParameterList params = new ParameterList();
-                params.setBeta(Double.valueOf(jTextFieldBeta.getText()));
-                params.setRandom(random);
-                params.setBi(jCheckBoxBI.isSelected());
-                params.setLambda(Integer.valueOf(jTextFieldLambda.getText()));
-                params.setNp(Integer.valueOf(jTextFieldNp.getText()));
-                params.setNi(Integer.valueOf(jTextFieldNi.getText()));
-                params.setNc(Integer.valueOf(jTextFieldNc.getText()));
-                params.setpMax(Integer.valueOf(jTextFieldPMax.getText()));
-                params.setpMin(Integer.valueOf(jTextFieldPMin.getText()));
+                TerminationCondition termCon = new TerminationCondition(99999999, 99999999, Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()), 99999999);
 
                 jProgressBar1.setMinimum(0);
-                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldNp.getText()) * Integer.valueOf(jTextFieldNi.getText()) * Integer.valueOf(jTextFieldNc.getText()));
+                jProgressBar1.setMaximum(Integer.valueOf(jTextFieldMaxNumberOfLocalSearches.getText()));
                 jProgressBar1.setValue(0);
 
-                GRASPxELSAlgorithm gels = new GRASPxELSAlgorithm(problem, params, jProgressBar1);
+                ILS ils = new ILS(problem, termCon, Integer.valueOf(jTextFieldPerturbationSize.getText()),
+                        Integer.valueOf(jTextFieldLambda.getText()), jCheckBoxBI.isSelected(), random, jProgressBar1);
                 long startTime = System.nanoTime();
-                Solution sol = gels.solve();
+                Solution sol = ils.solve();
                 long estimatedTime = System.nanoTime() - startTime;
 
                 int routeCount = sol.getK();
@@ -4484,13 +4252,9 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
-    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
-    private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel28;
-    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -4557,15 +4321,11 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTextFieldAddNodeStoreyNo;
     private javax.swing.JTextField jTextFieldAddNodeXPos;
     private javax.swing.JTextField jTextFieldAddNodeYPos;
-    private javax.swing.JTextField jTextFieldBeta;
     private javax.swing.JTextField jTextFieldDropTime;
     private javax.swing.JTextField jTextFieldLambda;
+    private javax.swing.JTextField jTextFieldMaxNumberOfLocalSearches;
     private javax.swing.JTextField jTextFieldMaxRouteTime;
-    private javax.swing.JTextField jTextFieldNc;
-    private javax.swing.JTextField jTextFieldNi;
-    private javax.swing.JTextField jTextFieldNp;
-    private javax.swing.JTextField jTextFieldPMax;
-    private javax.swing.JTextField jTextFieldPMin;
+    private javax.swing.JTextField jTextFieldPerturbationSize;
     private javax.swing.JTextField jTextFieldVehicleCapacity;
     private javax.swing.JTextField jTextFieldaddNodeDemand;
     // End of variables declaration//GEN-END:variables

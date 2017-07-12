@@ -9,7 +9,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import problem.EuclideanCoordinate;
+import vrp.problem.EuclideanCoordinate;
 import buildingmodel.Node;
 import buildingmodel.Storey;
 

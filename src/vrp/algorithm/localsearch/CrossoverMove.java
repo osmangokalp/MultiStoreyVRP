@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package algorithm.PrinsGRASPxELS.localsearch;
+package vrp.algorithm.localsearch;
 
-import problem.Problem;
-import problem.Solution;
-import util.Util;
+import vrp.problem.Problem;
+import vrp.problem.Solution;
+import vrp.util.Util;
 
 /**
  *

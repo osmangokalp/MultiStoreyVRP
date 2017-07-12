@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package util;
+package vrp.util;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import problem.NeighborElement;
-import problem.Problem;
-import problem.Solution;
+import vrp.problem.NeighborElement;
+import vrp.problem.Problem;
+import vrp.problem.Solution;
 
 /**
  *
@@ -90,21 +90,23 @@ public class Util {
         solution.calculateMVectors();
         return solution;
     }
-    
+
     public static ArrayList<ArrayList<Integer>> turnSolutiontoArrayLists(Solution solution) {
         ArrayList<ArrayList<Integer>> routes = new ArrayList<>();
-        
+
         int tour[] = solution.getTour();
-        
+
         for (int i = 1; i < tour.length; i++) {
             ArrayList<Integer> route = new ArrayList<>();
             while (tour[i] != 0) {
                 route.add(tour[i]);
                 i++;
             }
-            routes.add(route);
+            if (!route.isEmpty()) {
+                routes.add(route);
+            }
         }
-        
+
         return routes;
     }
 }

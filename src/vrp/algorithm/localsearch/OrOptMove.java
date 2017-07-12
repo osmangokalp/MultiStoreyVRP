@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package algorithm.PrinsGRASPxELS.localsearch;
+package vrp.algorithm.localsearch;
 
-import algorithm.beasley.Beasley;
-import problem.Problem;
-import problem.Solution;
-import util.Util;
+import vrp.problem.Problem;
+import vrp.problem.Solution;
+import vrp.util.Util;
 
 /**
  *
@@ -363,13 +362,15 @@ public class OrOptMove extends LocalSearch {
         solution.setNext(t1Star, t6Star);
         solution.setNext(t3Star, t2Star);
         solution.setNext(t5Star, t4Star);
-        
+
         solution.updateAfterLocalSearchModification(GStar);
+
+
     }
 
     private void calculateOrders() {
         order = new int[solution.getM() + 1];
-        int start = 1;
+        int start = n + 1;
         order[start] = 0;
         int temp = next[start];
         int index = 1;

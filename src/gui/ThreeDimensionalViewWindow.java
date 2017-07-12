@@ -103,7 +103,7 @@ public class ThreeDimensionalViewWindow extends Frame {
         cameraTransform.setTranslation(new Vector3f(0.0f, 5.0f, 30.0f));
         cameraTG.setTransform(cameraTransform);
 
-        Background background = new Background(new Color3f(0.95f, 0.95f, 0.95f));
+        Background background = new Background(new Color3f(0.98f, 0.98f, 0.98f));
         BranchGroup backgroundBg = new BranchGroup();
         BoundingSphere sphere = new BoundingSphere(new Point3d(0, 0, 0), 100000);
         background.setApplicationBounds(sphere);
@@ -283,7 +283,7 @@ public class ThreeDimensionalViewWindow extends Frame {
         storeySurfaceAppearance.setColoringAttributes(ca);
 
         TransparencyAttributes t_attr
-                = new TransparencyAttributes(TransparencyAttributes.NICEST, 0.7f);
+                = new TransparencyAttributes(TransparencyAttributes.NICEST, 0.95f);
         storeySurfaceAppearance.setTransparencyAttributes(t_attr);
 
 //        TextureLoader storeySurfaceTexture = new TextureLoader("gfx/storeySurfaceTexture.jpg", "RGB", this);

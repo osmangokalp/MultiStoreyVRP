@@ -5,7 +5,7 @@
  */
 package buildingmodel;
 
-import problem.EuclideanCoordinate;
+import vrp.problem.EuclideanCoordinate;
 
 /**
  *
