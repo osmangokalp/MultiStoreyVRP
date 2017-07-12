@@ -131,14 +131,19 @@ public class ILS {
         Solution s2 = s1.cloneSolution();
 
         boolean improved;
-        int n = localSearches.size();
 
+        ArrayList<Integer> indexes = new ArrayList<>();
+        
         do {
             improved = false;
 
+            for (int i = 0; i < localSearches.size(); i++) {
+                indexes.add(i);
+            }
+            
             //monitoring phase
-            for (int i = 0; i < n; i++) {
-                LocalSearch ls = localSearches.get(i);
+            while (!indexes.isEmpty()){
+                LocalSearch ls = localSearches.get(indexes.remove(random.nextInt(indexes.size())));
 
                 double GStar = ls.optimize(s2, bi, lambda);
                 numOfIndividualLSCall++;
