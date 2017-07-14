@@ -3221,7 +3221,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItemExperimentsAllS123ActionPerformed
 
     private void jMenuItemFinalS1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemFinalS1ActionPerformed
-        int not = 30;
+        int not = 25;
         int SEED = 101;
         //int nos = 4;
         //int noc = 120;
@@ -3356,7 +3356,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItemFinalS1ActionPerformed
 
     private void jMenuItemFinalS2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemFinalS2ActionPerformed
-        int not = 30;
+        int not = 25;
         int SEED = 101;
         int cc = 4;
         double totalArea = 640000;
@@ -3488,7 +3488,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItemFinalS2ActionPerformed
 
     private void jMenuItemFinalS3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemFinalS3ActionPerformed
-        int not = 30;
+        int not = 25;
         int SEED = 101;
         int cc = 4;
         double sw = 400;
