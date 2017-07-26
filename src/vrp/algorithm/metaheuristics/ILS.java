@@ -99,7 +99,12 @@ public class ILS {
         while (iterCounter < maxIter && numOfLSCall < maxNumOfLSCall && elapsedTime < maxElapsedTime * 1000 && numOfIndividualLSCall < maxNumOfIndividualLSCall) {
             iterCounter++;
 
-            Solution s1 = shakingProcedure(s, pSize);
+            Solution s1;
+            if (s.getK() > 1) {
+                s1 = shakingProcedure(s, pSize);
+            } else {
+                s1 = s;
+            }
 
             Solution s2 = localSearch(s1, bi, lambda);
 

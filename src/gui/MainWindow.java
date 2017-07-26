@@ -1210,14 +1210,14 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel2.setText("max # of local searches:");
         jPanelSetAlgorithm.add(jLabel2);
 
-        jTextFieldMaxNumberOfLocalSearches.setText("5000");
+        jTextFieldMaxNumberOfLocalSearches.setText("20000");
         jPanelSetAlgorithm.add(jTextFieldMaxNumberOfLocalSearches);
 
         jLabel28.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel28.setText("perturbation size:");
         jPanelSetAlgorithm.add(jLabel28);
 
-        jTextFieldPerturbationSize.setText("3");
+        jTextFieldPerturbationSize.setText("8");
         jPanelSetAlgorithm.add(jTextFieldPerturbationSize);
 
         jLabel24.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
