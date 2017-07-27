@@ -3475,7 +3475,7 @@ public class MainWindow extends javax.swing.JFrame {
                     int routeCount = sol.getK();
                     String fileText = "" + t + " " + Util.applyPrecision(sw, 2) + " " + cc + " " + noc + " " + nos + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000 + " " + routeCount + " " + DEFAULT_CONNECTION_WEIGHT;
                     System.out.println(fileText);
-                    try (FileWriter fw = new FileWriter("C:\\Users\\user\\OneDrive\\Belgeler\\Multi Storey Yayın\\Experiments\\Yeni\\S2_data.txt", true);
+                    try (FileWriter fw = new FileWriter("C:\\Users\\user\\OneDrive\\Belgeler\\Multi Storey Yayın\\Experiments\\Yeni\\finalS2.txt", true);
                             BufferedWriter bw = new BufferedWriter(fw);
                             PrintWriter out = new PrintWriter(bw)) {
                         out.println(fileText);
@@ -3606,7 +3606,7 @@ public class MainWindow extends javax.swing.JFrame {
                 int routeCount = sol.getK();
                 String fileText = "" + t + " " + Util.applyPrecision(sw, 2) + " " + cc + " " + noc + " " + nos + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000 + " " + routeCount + " " + DEFAULT_CONNECTION_WEIGHT + " " + dl;
                 System.out.println(fileText);
-                try (FileWriter fw = new FileWriter("C:\\Users\\user\\OneDrive\\Belgeler\\Multi Storey Yayın\\Experiments\\Yeni\\S3_data.txt", true);
+                try (FileWriter fw = new FileWriter("C:\\Users\\user\\OneDrive\\Belgeler\\Multi Storey Yayın\\Experiments\\Yeni\\finalS3.txt", true);
                         BufferedWriter bw = new BufferedWriter(fw);
                         PrintWriter out = new PrintWriter(bw)) {
                     out.println(fileText);
