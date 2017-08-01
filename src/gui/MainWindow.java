@@ -715,7 +715,6 @@ public class MainWindow extends javax.swing.JFrame {
         jMenuItemExpCase3 = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItemExit = new javax.swing.JMenuItem();
-        jMenuAbout = new javax.swing.JMenu();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -1311,9 +1310,6 @@ public class MainWindow extends javax.swing.JFrame {
         jMenuFile.add(jMenuItemExit);
 
         jMenuBar1.add(jMenuFile);
-
-        jMenuAbout.setText("About");
-        jMenuBar1.add(jMenuAbout);
 
         setJMenuBar(jMenuBar1);
 
@@ -2898,7 +2894,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelTotalDemand;
     private javax.swing.JList jListConnections;
     private javax.swing.JList jListNodes;
-    private javax.swing.JMenu jMenuAbout;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenu jMenuFile;
     private javax.swing.JMenuItem jMenuItem1;
