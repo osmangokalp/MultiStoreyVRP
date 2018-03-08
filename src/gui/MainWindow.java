@@ -59,6 +59,7 @@ import vrp.problem.Problem;
 import vrp.problem.Solution;
 import vrp.util.Util;
 import vrp.algorithm.metaheuristics.ILS;
+import vrp.util.GfG;
 import vrp.util.TerminationCondition;
 
 /**
@@ -713,7 +714,7 @@ public class MainWindow extends javax.swing.JFrame {
         jMenuItemExpCase1 = new javax.swing.JMenuItem();
         jMenuItemExpCase2 = new javax.swing.JMenuItem();
         jMenuItemExpCase3 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItemExpCase4 = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItemExit = new javax.swing.JMenuItem();
 
@@ -1293,7 +1294,7 @@ public class MainWindow extends javax.swing.JFrame {
         });
         jMenuFile.add(jMenuItemExpCase2);
 
-        jMenuItemExpCase3.setText("ExpCase3");
+        jMenuItemExpCase3.setText("Exp Case 3");
         jMenuItemExpCase3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItemExpCase3ActionPerformed(evt);
@@ -1301,13 +1302,13 @@ public class MainWindow extends javax.swing.JFrame {
         });
         jMenuFile.add(jMenuItemExpCase3);
 
-        jMenuItem3.setText("Exp Case 4");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItemExpCase4.setText("Exp Case 4");
+        jMenuItemExpCase4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                jMenuItemExpCase4ActionPerformed(evt);
             }
         });
-        jMenuFile.add(jMenuItem3);
+        jMenuFile.add(jMenuItemExpCase4);
         jMenuFile.add(jSeparator1);
 
         jMenuItemExit.setText("Exit");
@@ -2255,7 +2256,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuItemExpCase3ActionPerformed
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+    private void jMenuItemExpCase4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemExpCase4ActionPerformed
         int not = 25;
         int SEED = 101;
         int nos = 16;
@@ -2373,18 +2374,21 @@ public class MainWindow extends javax.swing.JFrame {
             int routeCount = sol.getK();
             String fileText = "" + t + " " + Util.applyPrecision(sw, 2) + " " + cc + " " + noc + " " + nos + " " + Util.applyPrecision(sol.getFitness(), 2) + " " + estimatedTime / 1000000 + " " + routeCount + " " + DEFAULT_CONNECTION_WEIGHT;
             System.out.println(fileText);
-            try (FileWriter fw = new FileWriter("D:\\finalS4.txt", true);
+            try (FileWriter fw = new FileWriter("D:\\finalS4_VRP.txt", true);
                     BufferedWriter bw = new BufferedWriter(fw);
                     PrintWriter out = new PrintWriter(bw)) {
                 out.println(fileText);
             } catch (IOException e) {
                 //exception handling left as an exercise for the reader
             }
-
+            
             //Solve TSP for each storey
-            for (int sn = 0; sn < nos; sn++) {
-                double totalFitness = 0;
+            nodeCount = (noc / nos);
+            GfG gfg = new GfG();
+            byte[][] perm = gfg.calculatePermutation(nodeCount);
 
+            double fTotal = 0;
+            for (int sn = 0; sn < nos; sn++) {
                 createNewProblem(nos, sw);
 
                 //add depot
@@ -2419,12 +2423,36 @@ public class MainWindow extends javax.swing.JFrame {
 
                 //solve problem here
                 weightMatrix = constructWeightMatrix();
-                nodeCount = calculateNodeCount();
-                distanceMatrix = dmc.constructDistanceMatrix(weightMatrix, nodeCount);
-                
+                int nodeCount2 = calculateNodeCount();
+                distanceMatrix = dmc.constructDistanceMatrix(weightMatrix, nodeCount2);
+
+                byte[] solBest = new byte[11];
+                double f, fBest = Double.MAX_VALUE;
+                for (int i = 0; i < perm.length; i++) {
+                    byte[] s = perm[i];
+                    f = distanceMatrix[0][s[0]] + distanceMatrix[s[s.length - 1]][0];
+
+                    for (int j = 0; j < s.length - 1; j++) {
+                        f += distanceMatrix[s[j]][s[j + 1]];
+                    }
+                    if (f < fBest) {
+                        fBest = f;
+                        System.arraycopy(s, 0, solBest, 0, s.length);
+                    }
+                }
+
+                fTotal += fBest;
+            }
+            System.out.println("TSP fBest: " + fTotal);
+            try (FileWriter fw = new FileWriter("D:\\finalS4_TSP.txt", true);
+                    BufferedWriter bw = new BufferedWriter(fw);
+                    PrintWriter out = new PrintWriter(bw)) {
+                out.println("" + t + " " + Util.applyPrecision(fTotal, 2));
+            } catch (IOException e) {
+                //exception handling left as an exercise for the reader
             }
         }
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    }//GEN-LAST:event_jMenuItemExpCase4ActionPerformed
 
     private Connection createConnectionFromXML(XMLEventReader eventReader) throws XMLStreamException {
         XMLEvent event;
@@ -3078,11 +3106,11 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu jMenuFile;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItemExit;
     private javax.swing.JMenuItem jMenuItemExpCase1;
     private javax.swing.JMenuItem jMenuItemExpCase2;
     private javax.swing.JMenuItem jMenuItemExpCase3;
+    private javax.swing.JMenuItem jMenuItemExpCase4;
     private javax.swing.JMenuItem jMenuItemGenerateProblem;
     private javax.swing.JMenuItem jMenuItemLoadProblem;
     private javax.swing.JMenuItem jMenuItemNewProblem;
